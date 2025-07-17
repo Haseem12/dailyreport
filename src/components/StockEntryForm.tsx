@@ -27,6 +27,7 @@ import { CalendarIcon, PlusCircle, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const productSchema = z.object({
   productName: z.string().min(1, 'Product name is required'),
@@ -80,35 +81,37 @@ export default function StockEntryForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Visit Details</h3>
-            <FormField name="salesAgentName" control={form.control} render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sales Agent Name</FormLabel>
-                  <FormControl><Input placeholder="e.g., John Doe" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField name="customerName" control={form.control} render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Customer Name</FormLabel>
-                  <FormControl><Input placeholder="e.g., Shoprite Lekki" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField name="customerAddress" control={form.control} render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Customer Address</FormLabel>
-                  <FormControl><Input placeholder="e.g., 123 Admiralty Way" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-2 gap-4">
-                 <FormField name="dateOfVisit" control={form.control} render={({ field }) => (
+        <Card>
+          <CardHeader>
+            <CardTitle>Visit & Customer Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+                <FormField name="salesAgentName" control={form.control} render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sales Agent Name</FormLabel>
+                      <FormControl><Input placeholder="e.g., John Doe" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField name="customerName" control={form.control} render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Customer Name</FormLabel>
+                      <FormControl><Input placeholder="e.g., Shoprite Lekki" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField name="customerAddress" control={form.control} render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Customer Address</FormLabel>
+                      <FormControl><Input placeholder="e.g., 123 Admiralty Way" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField name="dateOfVisit" control={form.control} render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>Date of Visit</FormLabel>
                       <Popover>
@@ -137,18 +140,28 @@ export default function StockEntryForm() {
                   )}
                 />
             </div>
-          </div>
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Batch Details</h3>
-            <FormField name="batchNumber" control={form.control} render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Batch Number</FormLabel>
-                  <FormControl><Input placeholder="e.g., B012345" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-2 gap-4">
+          </CardContent>
+        </Card>
+        
+        <Card>
+           <CardHeader>
+             <div className="flex justify-between items-center">
+                <CardTitle>Batch & Product Details</CardTitle>
+                <Button type="button" variant="outline" size="sm" onClick={() => append({ productName: '', quantityRemaining: 0, remarks: '', action: '' })}>
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add Product
+                </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                 <FormField name="batchNumber" control={form.control} render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Batch Number</FormLabel>
+                      <FormControl><Input placeholder="e.g., B012345" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField name="supplyDate" control={form.control} render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>Supply Date</FormLabel>
@@ -189,30 +202,20 @@ export default function StockEntryForm() {
                     </FormItem>
                   )}
                 />
-            </div>
-            <FormField name="productCondition" control={form.control} render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Overall Product Condition</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Select condition" /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      <SelectItem value="Good">Good</SelectItem>
-                      <SelectItem value="Damaged">Damaged</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
-        
-        <div className="space-y-4">
-            <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium">Products</h3>
-                <Button type="button" variant="outline" size="sm" onClick={() => append({ productName: '', quantityRemaining: 0, remarks: '', action: '' })}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add Product
-                </Button>
+                <FormField name="productCondition" control={form.control} render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Overall Condition</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Select condition" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                          <SelectItem value="Good">Good</SelectItem>
+                          <SelectItem value="Damaged">Damaged</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
             </div>
             <div className="space-y-4">
                 {fields.map((field, index) => (
@@ -235,7 +238,8 @@ export default function StockEntryForm() {
                     </div>
                 ))}
             </div>
-        </div>
+          </CardContent>
+        </Card>
 
         <Button type="submit" size="lg">Submit Report</Button>
       </form>
