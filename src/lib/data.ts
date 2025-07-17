@@ -1,4 +1,11 @@
-import type { StockReport } from '@/lib/types';
+import type { StockReport, AdminUser } from '@/lib/types';
+
+export const adminUsers: AdminUser[] = [
+  { id: 'admin001', email: 'admin1@example.com', password: 'password123' },
+  { id: 'admin002', email: 'admin2@example.com', password: 'password123' },
+  { id: 'admin003', email: 'admin3@example.com', password: 'password123' },
+  { id: 'admin004', email: 'admin4@example.com', password: 'password123' },
+];
 
 export const mockReports: StockReport[] = [
   {

@@ -1,22 +1,46 @@
+
+'use client';
+
 import AppLayout from '@/components/AppLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import RegisterAgentForm from '@/components/RegisterAgentForm';
-import LoginAgentForm from '@/components/LoginAgentForm';
 import StockReportDashboard from '@/components/StockReportDashboard';
 import RegisterDepartmentForm from '@/components/RegisterDepartmentForm';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { logout } from './login/actions';
+import { Button } from '@/components/ui/button';
 
 export default function AdminPage() {
+  const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/admin/login');
+  };
+
   return (
     <AppLayout pageTitle="Admin Panel">
       <div className="flex justify-center items-start pt-8">
         <Tabs defaultValue="reports" className="w-full max-w-7xl">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="reports">Stock Reports</TabsTrigger>
-            <TabsTrigger value="registerAgent">Register Agent</TabsTrigger>
-            <TabsTrigger value="registerDepartment">Register Department</TabsTrigger>
-            <TabsTrigger value="login">Agent Login</TabsTrigger>
-          </TabsList>
+          <div className="flex justify-between items-center mb-4">
+            <TabsList className="grid grid-cols-3">
+              <TabsTrigger value="reports">Stock Reports</TabsTrigger>
+              <TabsTrigger value="registerAgent">Register Agent</TabsTrigger>
+              <TabsTrigger value="registerDepartment">Register Department</TabsTrigger>
+            </TabsList>
+            {isClient && (
+              <Button onClick={handleLogout} variant="outline">
+                Logout
+              </Button>
+            )}
+          </div>
           <TabsContent value="reports">
             <StockReportDashboard />
           </TabsContent>
@@ -43,19 +67,6 @@ export default function AdminPage() {
               </CardHeader>
               <CardContent>
                 <RegisterDepartmentForm />
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="login">
-            <Card>
-              <CardHeader>
-                <CardTitle>Agent Login</CardTitle>
-                <CardDescription>
-                  Enter your credentials to access your dashboard.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <LoginAgentForm />
               </CardContent>
             </Card>
           </TabsContent>

@@ -1,17 +1,10 @@
+
 "use client";
 
 import Link from 'next/link';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Home, Menu, Package2, PlusCircle, UserCircle, UserCog } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -23,6 +16,12 @@ const navItems = [
 
 export default function Header({ pageTitle }: { pageTitle: string }) {
   const pathname = usePathname();
+
+  // Don't render header on the admin login page
+  if (pathname === '/admin/login') {
+    return null;
+  }
+
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
       <Sheet>
@@ -59,26 +58,6 @@ export default function Header({ pageTitle }: { pageTitle: string }) {
       </Sheet>
       <div className="flex-1 md:grow-0">
         <h1 className="text-lg font-semibold md:text-2xl">{pageTitle}</h1>
-      </div>
-      <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-        <div className='ml-auto'>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="icon" className="rounded-full">
-                <UserCircle className="h-5 w-5" />
-                <span className="sr-only">Toggle user menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Marketing Dept.</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
       </div>
     </header>
   );

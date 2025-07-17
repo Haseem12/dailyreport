@@ -1,3 +1,6 @@
+
+'use client';
+
 import type { ReactNode } from 'react';
 import Sidebar from '@/components/Sidebar';
 import Header from '@/components/Header';
@@ -9,6 +12,7 @@ export default function AppLayout({
   children: ReactNode;
   pageTitle: string;
 }) {
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40 sm:flex-row">
       <Sidebar />
