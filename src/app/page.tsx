@@ -1,3 +1,6 @@
+
+'use client';
+
 import AppLayout from '@/components/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,6 +8,7 @@ import { FilePlus } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardPage() {
+
   return (
     <AppLayout pageTitle="Agent Dashboard">
       <div className="flex flex-col gap-8">
@@ -34,7 +38,7 @@ export default function DashboardPage() {
             <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
                 <CardDescription>A summary of your recent report submissions will appear here.</CardDescription>
-            </CardHeader>
+            </Header>
             <CardContent>
                 <div className="text-center text-muted-foreground py-8">
                     <p>No recent reports submitted.</p>
