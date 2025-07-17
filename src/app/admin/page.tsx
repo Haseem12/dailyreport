@@ -1,7 +1,7 @@
 
 'use client';
 
-import AppLayout from '@/components/AppLayout';
+import AdminLayout from '@/components/AdminLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import RegisterAgentForm from '@/components/RegisterAgentForm';
@@ -26,7 +26,7 @@ export default function AdminPage() {
   };
 
   return (
-    <AppLayout pageTitle="Admin Panel">
+    <AdminLayout pageTitle="Admin Panel">
       <div className="flex justify-center items-start pt-8">
         <Tabs defaultValue="reports" className="w-full max-w-7xl">
           <div className="flex justify-between items-center mb-4">
@@ -72,6 +72,6 @@ export default function AdminPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </AdminLayout>
   );
 }
