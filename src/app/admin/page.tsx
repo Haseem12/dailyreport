@@ -4,21 +4,23 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import RegisterAgentForm from '@/components/RegisterAgentForm';
 import LoginAgentForm from '@/components/LoginAgentForm';
 import StockReportDashboard from '@/components/StockReportDashboard';
+import RegisterDepartmentForm from '@/components/RegisterDepartmentForm';
 
 export default function AdminPage() {
   return (
     <AppLayout pageTitle="Admin Panel">
       <div className="flex justify-center items-start pt-8">
         <Tabs defaultValue="reports" className="w-full max-w-7xl">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="reports">Stock Reports</TabsTrigger>
-            <TabsTrigger value="register">Register Agent</TabsTrigger>
+            <TabsTrigger value="registerAgent">Register Agent</TabsTrigger>
+            <TabsTrigger value="registerDepartment">Register Department</TabsTrigger>
             <TabsTrigger value="login">Agent Login</TabsTrigger>
           </TabsList>
           <TabsContent value="reports">
             <StockReportDashboard />
           </TabsContent>
-          <TabsContent value="register">
+          <TabsContent value="registerAgent">
             <Card>
               <CardHeader>
                 <CardTitle>Register New Agent</CardTitle>
@@ -28,6 +30,19 @@ export default function AdminPage() {
               </CardHeader>
               <CardContent>
                 <RegisterAgentForm />
+              </CardContent>
+            </Card>
+          </TabsContent>
+           <TabsContent value="registerDepartment">
+            <Card>
+              <CardHeader>
+                <CardTitle>Register New Department</CardTitle>
+                <CardDescription>
+                  Create credentials for a department to view reports.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RegisterDepartmentForm />
               </CardContent>
             </Card>
           </TabsContent>
