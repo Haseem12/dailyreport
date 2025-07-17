@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Home, Menu, Package2, PlusCircle, UserCircle } from 'lucide-react';
+import { Home, Menu, Package2, PlusCircle, UserCircle, UserCog } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { href: '/', icon: Home, label: 'Dashboard' },
   { href: '/entry', icon: PlusCircle, label: 'New Report' },
+  { href: '/admin', icon: UserCog, label: 'Admin' },
 ];
 
 export default function Header({ pageTitle }: { pageTitle: string }) {

@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, PlusCircle, Package2 } from 'lucide-react';
+import { Home, PlusCircle, Package2, UserCog } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Dashboard' },
   { href: '/entry', icon: PlusCircle, label: 'New Report' },
+  { href: '/admin', icon: UserCog, label: 'Admin' },
 ];
 
 export default function Sidebar() {
