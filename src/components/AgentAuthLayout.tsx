@@ -6,13 +6,18 @@ import PinDialog from './PinDialog';
 
 export default function AgentAuthLayout({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [pinIsSet, setPinIsSet] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
-    const authStatus = localStorage.getItem('agentAuthenticated');
-    if (authStatus === 'true') {
-      setIsAuthenticated(true);
+    const storedPin = localStorage.getItem('agentPin');
+    if (storedPin) {
+      setPinIsSet(true);
+      const authStatus = localStorage.getItem('agentAuthenticated');
+      if (authStatus === 'true') {
+        setIsAuthenticated(true);
+      }
     }
   }, []);
 
@@ -21,8 +26,13 @@ export default function AgentAuthLayout({ children }: { children: ReactNode }) {
     setIsAuthenticated(true);
   };
 
+  const handlePinRegister = (pin: string) => {
+    localStorage.setItem('agentPin', pin);
+    setPinIsSet(true);
+    handlePinSuccess();
+  };
+
   if (!isClient) {
-    // Render nothing or a loading spinner on the server to avoid hydration mismatch
     return null;
   }
 
@@ -31,7 +41,11 @@ export default function AgentAuthLayout({ children }: { children: ReactNode }) {
       {isAuthenticated ? (
         children
       ) : (
-        <PinDialog onPinSuccess={handlePinSuccess} />
+        <PinDialog
+          onPinSuccess={handlePinSuccess}
+          onPinRegister={handlePinRegister}
+          hasRegisteredPin={pinIsSet}
+        />
       )}
     </>
   );
