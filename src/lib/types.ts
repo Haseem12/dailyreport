@@ -17,7 +17,7 @@ export interface StockReport {
   customerAddress: string;
   dateOfVisit: Date;
   outstandingBalance: number;
-  products: ProductStock[];
+  productss: ProductStock[];
 
   // These fields may be deprecated if all data moves into products array
   supplyDate?: Date;

@@ -13,6 +13,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { StockReport } from '@/lib/types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 interface StockReportDetailsDialogProps {
   isOpen: boolean;
@@ -30,71 +32,79 @@ export default function StockReportDetailsDialog({
   }
 
   const handleClose = () => onOpenChange(false);
+  const products = report.productss || [];
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl">
         <DialogHeader>
-          <DialogTitle>Report Details - {report.id}</DialogTitle>
+          <DialogTitle>Report Details</DialogTitle>
           <DialogDescription>
-            Full stock report for {report.customerName} submitted by {report.salesAgentName}.
+            Full stock report for {report.customerName} from {new Date(report.dateOfVisit).toLocaleDateString()}.
           </DialogDescription>
         </DialogHeader>
         
         <div className="grid gap-6 py-4 max-h-[70vh] overflow-y-auto pr-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="space-y-2">
-              <p><strong>Customer:</strong> {report.customerName}</p>
-              <p><strong>Address:</strong> {report.customerAddress}</p>
-              <p><strong>Sales Agent:</strong> {report.salesAgentName}</p>
-            </div>
-            <div className="space-y-2">
-              <p><strong>Visit Date:</strong> {new Date(report.dateOfVisit).toLocaleDateString()}</p>
-              <p><strong>Outstanding Balance:</strong> ₦{report.outstandingBalance.toLocaleString()}</p>
-            </div>
-          </div>
+          <Card>
+            <CardHeader>
+                <CardTitle>Visit Information</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                     <p><strong>Customer:</strong> {report.customerName}</p>
+                     <p><strong>Visit Date:</strong> {new Date(report.dateOfVisit).toLocaleDateString()}</p>
+                     <p><strong>Address:</strong> {report.customerAddress}</p>
+                     <p><strong>Outstanding Balance:</strong> ₦{report.outstandingBalance.toLocaleString()}</p>
+                     <p><strong>Sales Agent:</strong> {report.salesAgentName}</p>
+                </div>
+            </CardContent>
+          </Card>
 
-          <div>
-            <h3 className="font-semibold mb-2">Product Details</h3>
-            <div className="border rounded-lg">
-                <Table>
-                <TableHeader>
-                    <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead>Qty Remaining</TableHead>
-                    <TableHead>Batch No.</TableHead>
-                    <TableHead>Supply Date</TableHead>
-                    <TableHead>Expiry Date</TableHead>
-                    <TableHead>Condition</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {report.products && report.products.length > 0 ? (
-                      report.products.map((product, index) => (
-                        <TableRow key={product.id || index}>
-                            <TableCell className="font-medium">{product.productName}</TableCell>
-                            <TableCell>{product.quantityRemaining}</TableCell>
-                            <TableCell>{product.batchNumber}</TableCell>
-                            <TableCell>{new Date(product.supplyDate).toLocaleDateString()}</TableCell>
-                            <TableCell>{new Date(product.expiryDate).toLocaleDateString()}</TableCell>
-                            <TableCell>
-                              <Badge variant={product.productCondition === 'Damaged' ? 'destructive' : 'secondary'}>
-                                {product.productCondition}
-                              </Badge>
-                            </TableCell>
+          <Card>
+            <CardHeader>
+                <CardTitle>Product Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="border rounded-lg overflow-hidden">
+                    <Table>
+                    <TableHeader>
+                        <TableRow>
+                        <TableHead>Product</TableHead>
+                        <TableHead className="text-center">Qty</TableHead>
+                        <TableHead>Batch No.</TableHead>
+                        <TableHead>Supply Date</TableHead>
+                        <TableHead>Expiry Date</TableHead>
+                        <TableHead className="text-right">Condition</TableHead>
                         </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center text-muted-foreground">
-                          No product details available for this report.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                </TableBody>
-                </Table>
-            </div>
-          </div>
+                    </TableHeader>
+                    <TableBody>
+                        {products.length > 0 ? (
+                          products.map((product, index) => (
+                            <TableRow key={product.id || index}>
+                                <TableCell className="font-medium">{product.productName}</TableCell>
+                                <TableCell className="text-center">{product.quantityRemaining}</TableCell>
+                                <TableCell>{product.batchNumber}</TableCell>
+                                <TableCell>{new Date(product.supplyDate).toLocaleDateString()}</TableCell>
+                                <TableCell>{new Date(product.expiryDate).toLocaleDateString()}</TableCell>
+                                <TableCell className="text-right">
+                                  <Badge variant={product.productCondition === 'Damaged' ? 'destructive' : 'secondary'}>
+                                    {product.productCondition}
+                                  </Badge>
+                                </TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
+                              No product details available for this report.
+                            </TableCell>
+                          </TableRow>
+                        )}
+                    </TableBody>
+                    </Table>
+                </div>
+            </CardContent>
+          </Card>
         </div>
 
         <DialogFooter>
