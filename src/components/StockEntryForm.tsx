@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { submitStockReport } from '@/app/entry/actions';
 
 const productSchema = z.object({
   productName: z.string().min(1, 'Product name is required'),
@@ -46,6 +47,9 @@ const formSchema = z.object({
   outstandingBalance: z.coerce.number().min(0, 'Balance must be 0 or more'),
   products: z.array(productSchema).min(1, 'At least one product is required'),
 });
+
+export type StockEntryFormValues = z.infer<typeof formSchema>;
+
 
 export default function StockEntryForm() {
   const { toast } = useToast();
@@ -72,13 +76,22 @@ export default function StockEntryForm() {
     name: 'products',
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    toast({
-      title: 'Report Submitted!',
-      description: 'The stock report has been successfully submitted.',
-    });
-    form.reset();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+        await submitStockReport(values);
+        toast({
+        title: 'Report Submitted!',
+        description: 'The stock report has been successfully submitted.',
+        });
+        form.reset();
+    } catch (error) {
+        console.error("Report submission failed: ", error);
+        toast({
+            variant: 'destructive',
+            title: 'Submission Failed',
+            description: 'Could not submit the report. Please try again.',
+        });
+    }
   }
 
   return (
@@ -235,7 +248,9 @@ export default function StockEntryForm() {
           </CardContent>
         </Card>
 
-        <Button type="submit" size="lg">Submit Report</Button>
+        <Button type="submit" size="lg" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? 'Submitting...' : 'Submit Report'}
+        </Button>
       </form>
     </Form>
   );

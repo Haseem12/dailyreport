@@ -1,14 +1,9 @@
-import type { StockReport, AdminUser } from '@/lib/types';
+import type { StockReport, AdminUser, Department } from '@/lib/types';
+import { v4 as uuidv4 } from 'uuid';
 
-export const adminUsers: AdminUser[] = [
-  { id: 'admin001', email: 'admin1@example.com', password: 'password123' },
-  { id: 'admin002', email: 'admin2@example.com', password: 'password123' },
-  { id: 'admin003', email: 'admin3@example.com', password: 'password123' },
-  { id: 'admin004', email: 'admin4@example.com', password: 'password123' },
-];
-
-export const mockReports: StockReport[] = [
-  {
+// In-memory data stores
+let reports: StockReport[] = [
+    {
     id: 'REP001',
     salesAgentName: 'John Doe',
     customerName: 'Shoprite Lekki',
@@ -58,3 +53,73 @@ export const mockReports: StockReport[] = [
     ],
   },
 ];
+let adminUsers: AdminUser[] = [
+  { id: 'admin001', email: 'admin1@example.com', password: 'password123' },
+  { id: 'admin002', email: 'admin2@example.com', password: 'password123' },
+];
+let departments: Department[] = [];
+let salesAgents: AdminUser[] = [
+    { id: 'agent001', fullName: 'John Doe', email: 'john.doe@example.com', phone: '08012345678' },
+    { id: 'agent002', fullName: 'Jane Smith', email: 'jane.smith@example.com', phone: '08087654321' },
+];
+
+
+// --- Stock Report Functions ---
+export const getReports = async (): Promise<StockReport[]> => {
+  return Promise.resolve(reports);
+};
+
+export const addReport = async (reportData: Omit<StockReport, 'id' | 'products'> & { products: Omit<ProductStock, 'id'|'remarks'|'action'>[] }): Promise<StockReport> => {
+  const newReport: StockReport = {
+    id: `REP${(reports.length + 1).toString().padStart(3, '0')}`,
+    ...reportData,
+    products: reportData.products.map((p, index) => ({
+        ...p,
+        id: `PROD${index.toString().padStart(2, '0')}`,
+        remarks: 'N/A', // Default remarks
+        action: 'N/A' // Default action
+    })),
+  };
+  reports.push(newReport);
+  return Promise.resolve(newReport);
+};
+
+
+// --- Admin User Functions ---
+export const getAdminUserByEmail = async (email: string): Promise<AdminUser | undefined> => {
+    return Promise.resolve(adminUsers.find(user => user.email === email));
+};
+
+
+// --- Sales Agent Functions ---
+export const getAgents = async (): Promise<AdminUser[]> => {
+    return Promise.resolve(salesAgents);
+};
+
+export const addAgent = async (agentData: Omit<AdminUser, 'id'>): Promise<AdminUser> => {
+  const newAgent: AdminUser = {
+    id: `agent${(salesAgents.length + 1).toString().padStart(3, '0')}`,
+    ...agentData,
+  };
+  salesAgents.push(newAgent);
+  // Also add them to the adminUsers list so they can potentially log in to other systems
+  adminUsers.push({ ...newAgent, password: agentData.password || 'password123' });
+  return Promise.resolve(newAgent);
+};
+
+
+// --- Department Functions ---
+export const getDepartments = async (): Promise<Department[]> => {
+    return Promise.resolve(departments);
+};
+
+export const addDepartment = async (departmentData: Omit<Department, 'id'>): Promise<Department> => {
+  const newDepartment: Department = {
+    id: `dept${(departments.length + 1).toString().padStart(3, '0')}`,
+    ...departmentData,
+  };
+  departments.push(newDepartment);
+   // Also add them to the adminUsers list so they can potentially log in to other systems
+   adminUsers.push({ id: newDepartment.id, email: newDepartment.email, password: departmentData.password || 'password123' });
+  return Promise.resolve(newDepartment);
+};

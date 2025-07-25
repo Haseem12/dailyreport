@@ -15,6 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { registerDepartment } from '@/app/admin/actions';
 
 const formSchema = z.object({
   departmentName: z.string().min(2, 'Department name must be at least 2 characters'),
@@ -33,14 +34,22 @@ export default function RegisterDepartmentForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Here you would typically handle the registration logic, e.g., call an API
-    toast({
-      title: 'Department Registered!',
-      description: `New department ${values.departmentName} has been added.`,
-    });
-    form.reset();
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+        await registerDepartment(values);
+        toast({
+        title: 'Department Registered!',
+        description: `New department ${values.departmentName} has been added.`,
+        });
+        form.reset();
+    } catch (error) {
+        console.error("Registration failed: ", error);
+        toast({
+            variant: 'destructive',
+            title: 'Registration Failed',
+            description: 'Could not register the new department. Please try again.',
+        });
+    }
   }
 
   return (
@@ -85,7 +94,9 @@ export default function RegisterDepartmentForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full">Register Department</Button>
+        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? 'Registering...' : 'Register Department'}
+        </Button>
       </form>
     </Form>
   );

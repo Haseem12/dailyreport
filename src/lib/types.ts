@@ -19,3 +19,18 @@ export interface StockReport {
   outstandingBalance: number;
   products: ProductStock[];
 }
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  password?: string;
+  fullName?: string;
+  phone?: string;
+}
+
+export interface Department {
+    id: string;
+    departmentName: string;
+    email: string;
+    password?: string;
+}

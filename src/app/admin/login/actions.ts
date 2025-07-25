@@ -3,17 +3,15 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { adminUsers } from '@/lib/data';
+import { getAdminUserByEmail } from '@/lib/data';
 
-export async function login(prevState: { error: string | undefined }, formData: FormData) {
+export async function login(prevState: { error: string | undefined } | undefined, formData: FormData) {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
 
-  const user = adminUsers.find(
-    (user) => user.email === email && user.password === password
-  );
+  const user = await getAdminUserByEmail(email);
 
-  if (!user) {
+  if (!user || user.password !== password) {
     return { error: 'Invalid email or password' };
   }
 

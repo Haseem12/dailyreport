@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from 'react-hook-form';
@@ -14,6 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { registerAgent } from '@/app/admin/actions';
 
 const formSchema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
@@ -34,14 +36,22 @@ export default function RegisterAgentForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Here you would typically handle the registration logic, e.g., call an API
-    toast({
-      title: 'Agent Registered!',
-      description: `New agent ${values.fullName} has been added.`,
-    });
-    form.reset();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+        await registerAgent(values);
+        toast({
+            title: 'Agent Registered!',
+            description: `New agent ${values.fullName} has been added.`,
+        });
+        form.reset();
+    } catch (error) {
+        console.error("Registration failed: ", error);
+        toast({
+            variant: 'destructive',
+            title: 'Registration Failed',
+            description: 'Could not register the new agent. Please try again.',
+        });
+    }
   }
 
   return (
@@ -101,7 +111,9 @@ export default function RegisterAgentForm() {
             )}
           />
         </div>
-        <Button type="submit" className="w-full">Register Agent</Button>
+        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? 'Registering...' : 'Register Agent'}
+        </Button>
       </form>
     </Form>
   );

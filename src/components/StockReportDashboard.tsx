@@ -1,8 +1,8 @@
 
 "use client";
 
-import { useState } from 'react';
-import { mockReports } from '@/lib/data';
+import { useState, useEffect } from 'react';
+import { getReports } from '@/lib/data';
 import type { StockReport } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -32,12 +32,28 @@ import {
 import { MoreHorizontal, File, ListFilter } from 'lucide-react';
 import AnomalyDetector from './AnomalyDetector';
 import StockReportDetailsDialog from './StockReportDetailsDialog';
+import { Skeleton } from './ui/skeleton';
 
 export default function StockReportDashboard() {
-  const [reports] = useState<StockReport[]>(mockReports);
+  const [reports, setReports] = useState<StockReport[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState('');
   const [selectedReport, setSelectedReport] = useState<StockReport | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const fetchedReports = await getReports();
+        setReports(fetchedReports);
+      } catch (error) {
+        console.error("Failed to fetch reports:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchReports();
+  }, []);
 
   const handleViewDetails = (report: StockReport) => {
     setSelectedReport(report);
@@ -97,63 +113,71 @@ export default function StockReportDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Customer</TableHead>
-                  <TableHead className="hidden md:table-cell">Agent</TableHead>
-                  <TableHead className="hidden md:table-cell">Condition</TableHead>
-                  <TableHead>Visit Date</TableHead>
-                  <TableHead className="text-right">Balance (₦)</TableHead>
-                  <TableHead>
-                    <span className="sr-only">Actions</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredReports.map((report) => (
-                  <TableRow key={report.id}>
-                    <TableCell>
-                      <div className="font-medium">{report.customerName}</div>
-                      <div className="hidden text-sm text-muted-foreground md:inline">
-                        {report.customerAddress}
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">{report.salesAgentName}</TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <Badge variant={report.productCondition === 'Damaged' ? 'destructive' : 'secondary'}>
-                        {report.productCondition}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {report.dateOfVisit.toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {report.outstandingBalance.toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            aria-haspopup="true"
-                            size="icon"
-                            variant="ghost"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => handleViewDetails(report)}>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            {isLoading ? (
+               <div className="space-y-4">
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+               </div>
+            ) : (
+                <Table>
+                <TableHeader>
+                    <TableRow>
+                    <TableHead>Customer</TableHead>
+                    <TableHead className="hidden md:table-cell">Agent</TableHead>
+                    <TableHead className="hidden md:table-cell">Condition</TableHead>
+                    <TableHead>Visit Date</TableHead>
+                    <TableHead className="text-right">Balance (₦)</TableHead>
+                    <TableHead>
+                        <span className="sr-only">Actions</span>
+                    </TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {filteredReports.map((report) => (
+                    <TableRow key={report.id}>
+                        <TableCell>
+                        <div className="font-medium">{report.customerName}</div>
+                        <div className="hidden text-sm text-muted-foreground md:inline">
+                            {report.customerAddress}
+                        </div>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">{report.salesAgentName}</TableCell>
+                        <TableCell className="hidden md:table-cell">
+                        <Badge variant={report.productCondition === 'Damaged' ? 'destructive' : 'secondary'}>
+                            {report.productCondition}
+                        </Badge>
+                        </TableCell>
+                        <TableCell>
+                        {new Date(report.dateOfVisit).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-right">
+                        {report.outstandingBalance.toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                            <Button
+                                aria-haspopup="true"
+                                size="icon"
+                                variant="ghost"
+                            >
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Toggle menu</span>
+                            </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => handleViewDetails(report)}>View Details</DropdownMenuItem>
+                            <DropdownMenuItem>Edit</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        </TableCell>
+                    </TableRow>
+                    ))}
+                </TableBody>
+                </Table>
+            )}
           </CardContent>
         </Card>
       </div>
