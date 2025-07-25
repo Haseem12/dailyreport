@@ -5,35 +5,18 @@ import { useActionState } from 'react';
 import { login } from '@/app/admin/login/actions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { AlertCircle } from 'lucide-react';
-
-const formSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(1, 'Password is required'),
-});
+import { Label } from '@/components/ui/label';
 
 export default function AdminLoginForm() {
   const [state, formAction] = useActionState(login, undefined);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
-
   return (
     <form action={formAction} className="space-y-6">
       <div className="space-y-4">
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-            Department Email
-          </label>
+        <div className="space-y-2">
+          <Label htmlFor="email">Department Email</Label>
           <Input
             id="email"
             name="email"
@@ -43,13 +26,8 @@ export default function AdminLoginForm() {
             placeholder="department@example.com"
           />
         </div>
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Password
-          </label>
+        <div className="space-y-2">
+           <Label htmlFor="password">Password</Label>
           <Input
             id="password"
             name="password"
