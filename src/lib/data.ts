@@ -1,3 +1,4 @@
+
 import type { StockReport, AdminUser, Department, ProductStock } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -84,7 +85,7 @@ export const loginAdmin = async (credentials: {email: string, password: string})
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'login_department', data: { email: credentials.email, password: credentials.password } }),
+            body: JSON.stringify({ action: 'login_admin', email: credentials.email, password: credentials.password }),
         });
         if (response.ok) {
             const result = await response.json();
@@ -93,7 +94,7 @@ export const loginAdmin = async (credentials: {email: string, password: string})
                 return {
                     id: result.user.id,
                     email: result.user.email,
-                    fullName: result.user.departmentName
+                    fullName: result.user.fullName
                 };
             }
         }
