@@ -3,7 +3,10 @@ import type { StockReport, AdminUser, Department, ProductStock } from '@/lib/typ
 import { v4 as uuidv4 } from 'uuid';
 
 // In-memory data store, structured to persist across requests in a dev environment.
-const dataStore = {
+// We use a global variable to simulate a database that persists across hot reloads.
+const globalForData = globalThis as unknown as { dataStore: any };
+
+const dataStore = globalForData.dataStore || {
   reports: [
     {
       id: 'REP001',
@@ -60,11 +63,11 @@ const dataStore = {
     { id: 'admin002', email: 'admin2@example.com', password: 'password123' },
   ],
   departments: [] as Department[],
-  salesAgents: [
-      { id: 'agent001', fullName: 'John Doe', email: 'john.doe@example.com', phone: '08012345678', password: 'password123' },
-      { id: 'agent002', fullName: 'Jane Smith', email: 'jane.smith@example.com', phone: '08087654321', password: 'password123' },
-  ],
+  salesAgents: [] as AdminUser[],
 };
+
+// In a Next.js development environment, this ensures the dataStore persists across file changes.
+if (process.env.NODE_ENV !== 'production') globalForData.dataStore = dataStore;
 
 
 // --- Stock Report Functions ---
@@ -83,14 +86,19 @@ export const addReport = async (reportData: Omit<StockReport, 'id' | 'products'>
         action: 'N/A' // Default action
     })),
   };
-  dataStore.reports.push(newReport);
+  dataStore.reports.unshift(newReport); // Add to the beginning of the array
   return Promise.resolve(newReport);
 };
 
 
 // --- Admin User Functions ---
 export const getAdminUserByEmail = async (email: string): Promise<AdminUser | undefined> => {
-    return Promise.resolve(dataStore.adminUsers.find(user => user.email === email));
+    // Admin users are static and read from the initial config
+    const staticAdminUsers = [
+        { id: 'admin001', email: 'admin1@example.com', password: 'password123' },
+        { id: 'admin002', email: 'admin2@example.com', password: 'password123' },
+    ];
+    return Promise.resolve(staticAdminUsers.find(user => user.email === email));
 };
 
 
@@ -105,7 +113,7 @@ export const getAgentByEmail = async (email: string): Promise<AdminUser | undefi
 
 export const addAgent = async (agentData: Omit<AdminUser, 'id'>): Promise<AdminUser> => {
   const newAgent: AdminUser = {
-    id: `agent${(dataStore.salesAgents.length + 1).toString().padStart(3, '0')}`,
+    id: `agent${uuidv4()}`,
     ...agentData,
   };
   dataStore.salesAgents.push(newAgent);
@@ -120,11 +128,9 @@ export const getDepartments = async (): Promise<Department[]> => {
 
 export const addDepartment = async (departmentData: Omit<Department, 'id'>): Promise<Department> => {
   const newDepartment: Department = {
-    id: `dept${(dataStore.departments.length + 1).toString().padStart(3, '0')}`,
+    id: `dept${uuidv4()}`,
     ...departmentData,
   };
   dataStore.departments.push(newDepartment);
-   // Also add them to the adminUsers list so they can potentially log in to other systems
-   dataStore.adminUsers.push({ id: newDepartment.id, email: newDepartment.email, password: departmentData.password || 'password123' });
   return Promise.resolve(newDepartment);
 };
