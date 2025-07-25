@@ -8,8 +8,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { cn } from '@/lib/utils';
 
 const agentNavItems = [
-  { href: '/', icon: Home, label: 'Dashboard' },
-  { href: '/entry', icon: PlusCircle, label: 'New Report' },
+  { href: '/', label: 'Dashboard', icon: Home, protected: true },
+  { href: '/entry', label: 'New Report', icon: PlusCircle, protected: false },
 ];
 
 const adminNavItems = [
@@ -20,14 +20,20 @@ const adminNavItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   
+  // A simple way to check if we think an agent is logged in.
+  // In a real app, you might use a client-side hook that checks session state.
+  const isLoggedIn = !pathname.startsWith('/login');
+
+
   // Don't render sidebar on login pages
   if (pathname === '/admin/login' || pathname === '/login') {
     return null;
   }
 
   const isAdmin = pathname.startsWith('/admin');
-  const navItems = isAdmin ? adminNavItems : agentNavItems;
   const homeLink = isAdmin ? '/admin' : '/';
+  const navItems = isAdmin ? adminNavItems : agentNavItems.filter(item => !item.protected || isLoggedIn);
+
 
   return (
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">

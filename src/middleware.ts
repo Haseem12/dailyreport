@@ -16,9 +16,9 @@ export function middleware(request: NextRequest) {
   }
 
   // Define protected routes
-  const agentRoutes = ['/', '/entry'];
+  const agentRoutes = ['/'];
   
-  // Protect Agent Routes
+  // Protect Agent Routes - only the dashboard is protected now
   if (agentRoutes.includes(pathname)) {
     if (!agentSession) {
       return NextResponse.redirect(new URL('/login', request.url));

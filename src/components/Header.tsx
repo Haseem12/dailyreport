@@ -4,15 +4,15 @@
 import Link from 'next/link';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Home, Menu, Package2, PlusCircle, UserCog, LogOut } from 'lucide-react';
+import { Home, Menu, Package2, PlusCircle, UserCog, LogOut, LogIn } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { logoutAgent } from '@/app/login/actions';
 import { logout } from '@/app/admin/login/actions';
 
 const agentNavItems = [
-  { href: '/', icon: Home, label: 'Dashboard' },
-  { href: '/entry', icon: PlusCircle, label: 'New Report' },
+  { href: '/', icon: Home, label: 'Dashboard', protected: true },
+  { href: '/entry', icon: PlusCircle, label: 'New Report', protected: false },
 ];
 
 const adminNavItems = [
@@ -31,13 +31,24 @@ export default function Header({ pageTitle }: { pageTitle: string }) {
   };
 
   const isAdminRoute = pathname.startsWith('/admin');
-  const isAgentRoute = !isAdminRoute;
+  const isLoginPage = pathname === '/login' || pathname.startsWith('/admin/login');
+  const isAgentLoggedIn = !isLoginPage && !isAdminRoute; // Simple check
+  const isAdminLoggedIn = isAdminRoute;
 
-  const navItems = isAdminRoute ? adminNavItems : agentNavItems;
-  const homeLink = isAdminRoute ? '/admin' : '/';
+  let navItems;
+  let homeLink;
 
-  // Don't render header on login pages
-  if (pathname === '/admin/login' || pathname === '/login') {
+  if (isAdminRoute) {
+    navItems = adminNavItems;
+    homeLink = '/admin';
+  } else {
+    // Show public and protected routes based on login status
+    navItems = agentNavItems.filter(item => !item.protected || isAgentLoggedIn);
+    homeLink = '/';
+  }
+
+  // Don't render header on admin login
+  if (pathname === '/admin/login') {
     return null;
   }
 
@@ -72,13 +83,19 @@ export default function Header({ pageTitle }: { pageTitle: string }) {
                   {item.label}
                 </Link>
             ))}
-             {isAgentRoute && (
+             {isAgentLoggedIn && (
               <form action={handleAgentLogout} className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
                   <LogOut className="h-5 w-5" />
                   <button type="submit">Logout Agent</button>
               </form>
             )}
-             {isAdminRoute && (
+            {!isAgentLoggedIn && !isAdminRoute && (
+               <Link href="/login" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
+                  <LogIn className="h-5 w-5" />
+                  Agent Login
+              </Link>
+            )}
+             {isAdminLoggedIn && (
                 <form action={handleAdminLogout} className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
                     <LogOut className="h-5 w-5" />
                     <button type="submit">Logout Admin</button>
@@ -88,24 +105,32 @@ export default function Header({ pageTitle }: { pageTitle: string }) {
         </SheetContent>
       </Sheet>
       <div className="flex-1">
-        <h1 className="text-lg font-semibold md:text-2xl">{pageTitle}</h1>
+         <h1 className="text-lg font-semibold md:text-2xl">{pageTitle}</h1>
       </div>
       <div className="hidden sm:flex items-center gap-2">
-        {isAgentRoute && (
+        {isAgentLoggedIn && (
           <form action={handleAgentLogout}>
             <Button variant="outline" size="sm">
               <LogOut className="mr-2 h-4 w-4" />
-              Logout Agent
+              Logout
             </Button>
           </form>
         )}
-         {isAdminRoute && (
+         {isAdminLoggedIn && (
             <form action={handleAdminLogout}>
                 <Button variant="outline" size="sm">
                     <LogOut className="mr-2 h-4 w-4" />
                     Logout Admin
                 </Button>
             </form>
+        )}
+        {!isAgentLoggedIn && !isAdminRoute && (
+             <Button asChild size="sm" variant="outline">
+                <Link href="/login">
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Agent Login
+                </Link>
+            </Button>
         )}
       </div>
     </header>
