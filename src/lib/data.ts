@@ -78,30 +78,22 @@ export const addReport = async (reportData: Omit<StockReport, 'id' | 'productss'
 
 
 // --- Admin User Functions ---
-export const loginAdmin = async (credentials: {username: string, password: string}): Promise<AdminUser | null> => {
-    // Master admin login from environment variables
-    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin';
-
-    if (credentials.username === adminUsername && credentials.password === adminPassword) {
-      return { id: 'master_admin', email: adminUsername };
-    }
-
-    // Try to log in as a department - assumes username field holds email for departments
+export const loginAdmin = async (credentials: {email: string, password: string}): Promise<AdminUser | null> => {
+    // Try to log in as a department
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'login_department', data: { email: credentials.username, password: credentials.password } }),
+            body: JSON.stringify({ action: 'login_department', data: { email: credentials.email, password: credentials.password } }),
         });
         if (response.ok) {
             const result = await response.json();
             if (result.success) {
                 // Return a user object that looks like AdminUser
-                return { 
-                    id: result.user.id, 
-                    email: result.user.email, 
-                    fullName: result.user.departmentName 
+                return {
+                    id: result.user.id,
+                    email: result.user.email,
+                    fullName: result.user.departmentName
                 };
             }
         }
@@ -110,7 +102,7 @@ export const loginAdmin = async (credentials: {username: string, password: strin
         // Fall through to return null if the department login fails
     }
 
-    return null; // Return null if neither master admin nor department login is successful
+    return null; // Return null if login is unsuccessful
 }
 
 

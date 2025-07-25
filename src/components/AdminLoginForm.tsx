@@ -12,7 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { AlertCircle } from 'lucide-react';
 
 const formSchema = z.object({
-  username: z.string().min(1, 'Username is required'),
+  email: z.string().email('Please enter a valid email address'),
   password: z.string().min(1, 'Password is required'),
 });
 
@@ -22,7 +22,7 @@ export default function AdminLoginForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: '',
+      email: '',
       password: '',
     },
   });
@@ -31,16 +31,16 @@ export default function AdminLoginForm() {
     <form action={formAction} className="space-y-6">
       <div className="space-y-4">
         <div>
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-            Username or Department Email
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            Department Email
           </label>
           <Input
-            id="username"
-            name="username"
-            type="text"
-            autoComplete="username"
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
             required
-            placeholder="admin or department@example.com"
+            placeholder="department@example.com"
           />
         </div>
         <div>

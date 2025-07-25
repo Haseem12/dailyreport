@@ -6,17 +6,17 @@ import { redirect } from 'next/navigation';
 import { loginAdmin } from '@/lib/data';
 
 export async function login(prevState: { error: string | undefined } | undefined, formData: FormData) {
-  const username = formData.get('username') as string;
+  const email = formData.get('email') as string;
   const password = formData.get('password') as string;
 
-  if (!username || !password) {
-    return { error: 'Username and password are required.' };
+  if (!email || !password) {
+    return { error: 'Email and password are required.' };
   }
 
-  const user = await loginAdmin({ email: username, password });
+  const user = await loginAdmin({ email, password });
 
   if (!user) {
-    return { error: 'Invalid username or password' };
+    return { error: 'Invalid email or password' };
   }
 
   const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
