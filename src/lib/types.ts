@@ -2,8 +2,12 @@ export interface ProductStock {
   id: string;
   productName: string;
   quantityRemaining: number;
-  remarks: string;
-  action: string;
+  batchNumber: string;
+  supplyDate: Date;
+  expiryDate: Date;
+  productCondition: 'Good' | 'Damaged';
+  remarks?: string; // Optional
+  action?: string; // Optional
 }
 
 export interface StockReport {
@@ -11,13 +15,15 @@ export interface StockReport {
   salesAgentName: string;
   customerName: string;
   customerAddress: string;
-  supplyDate: Date;
   dateOfVisit: Date;
-  batchNumber: string;
-  expiryDate: Date;
-  productCondition: 'Good' | 'Damaged';
   outstandingBalance: number;
   products: ProductStock[];
+
+  // These fields may be deprecated if all data moves into products array
+  supplyDate?: Date;
+  batchNumber?: string;
+  expiryDate?: Date;
+  productCondition?: 'Good' | 'Damaged';
 }
 
 export interface AdminUser {

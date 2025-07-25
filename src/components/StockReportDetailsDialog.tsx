@@ -33,7 +33,7 @@ export default function StockReportDetailsDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>Report Details - {report.id}</DialogTitle>
           <DialogDescription>
@@ -47,13 +47,10 @@ export default function StockReportDetailsDialog({
               <p><strong>Customer:</strong> {report.customerName}</p>
               <p><strong>Address:</strong> {report.customerAddress}</p>
               <p><strong>Sales Agent:</strong> {report.salesAgentName}</p>
-              <p><strong>Outstanding Balance:</strong> ₦{report.outstandingBalance.toLocaleString()}</p>
             </div>
             <div className="space-y-2">
-              <p><strong>Visit Date:</strong> {report.dateOfVisit.toLocaleDateString()}</p>
-              <p><strong>Supply Date:</strong> {report.supplyDate.toLocaleDateString()}</p>
-              <p><strong>Batch Number:</strong> {report.batchNumber}</p>
-              <p><strong>Overall Condition:</strong> <Badge variant={report.productCondition === 'Damaged' ? 'destructive' : 'secondary'}>{report.productCondition}</Badge></p>
+              <p><strong>Visit Date:</strong> {new Date(report.dateOfVisit).toLocaleDateString()}</p>
+              <p><strong>Outstanding Balance:</strong> ₦{report.outstandingBalance.toLocaleString()}</p>
             </div>
           </div>
 
@@ -65,19 +62,35 @@ export default function StockReportDetailsDialog({
                     <TableRow>
                     <TableHead>Product</TableHead>
                     <TableHead>Qty Remaining</TableHead>
-                    <TableHead>Remarks</TableHead>
-                    <TableHead>Action</TableHead>
+                    <TableHead>Batch No.</TableHead>
+                    <TableHead>Supply Date</TableHead>
+                    <TableHead>Expiry Date</TableHead>
+                    <TableHead>Condition</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {report.products.map((product) => (
-                    <TableRow key={product.id}>
-                        <TableCell>{product.productName}</TableCell>
-                        <TableCell>{product.quantityRemaining}</TableCell>
-                        <TableCell>{product.remarks}</TableCell>
-                        <TableCell>{product.action}</TableCell>
-                    </TableRow>
-                    ))}
+                    {report.products && report.products.length > 0 ? (
+                      report.products.map((product, index) => (
+                        <TableRow key={product.id || index}>
+                            <TableCell className="font-medium">{product.productName}</TableCell>
+                            <TableCell>{product.quantityRemaining}</TableCell>
+                            <TableCell>{product.batchNumber}</TableCell>
+                            <TableCell>{new Date(product.supplyDate).toLocaleDateString()}</TableCell>
+                            <TableCell>{new Date(product.expiryDate).toLocaleDateString()}</TableCell>
+                            <TableCell>
+                              <Badge variant={product.productCondition === 'Damaged' ? 'destructive' : 'secondary'}>
+                                {product.productCondition}
+                              </Badge>
+                            </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground">
+                          No product details available for this report.
+                        </TableCell>
+                      </TableRow>
+                    )}
                 </TableBody>
                 </Table>
             </div>
