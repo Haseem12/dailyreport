@@ -4,10 +4,18 @@ import { v4 as uuidv4 } from 'uuid';
 
 // In-memory data store, structured to persist across requests in a dev environment.
 // We use a global variable to simulate a database that persists across hot reloads.
-const globalForData = globalThis as unknown as { dataStore: any };
+const globalForData = globalThis as unknown as {
+  dataStore: {
+    reports: StockReport[];
+    adminUsers: AdminUser[];
+    departments: Department[];
+    salesAgents: AdminUser[];
+  }
+};
 
-const dataStore = globalForData.dataStore || {
-  reports: [
+if (!globalForData.dataStore) {
+  globalForData.dataStore = {
+    reports: [
     {
       id: 'REP001',
       salesAgentName: 'John Doe',
@@ -58,17 +66,16 @@ const dataStore = globalForData.dataStore || {
       ],
     },
   ],
-  adminUsers: [
-    { id: 'admin001', email: 'admin1@example.com', password: 'password123' },
-    { id: 'admin002', email: 'admin2@example.com', password: 'password123' },
-  ],
-  departments: [] as Department[],
-  salesAgents: [] as AdminUser[],
-};
+    adminUsers: [
+      { id: 'admin001', email: 'admin1@example.com', password: 'password123' },
+      { id: 'admin002', email: 'admin2@example.com', password: 'password123' },
+    ],
+    departments: [],
+    salesAgents: [],
+  };
+}
 
-// In a Next.js development environment, this ensures the dataStore persists across file changes.
-if (process.env.NODE_ENV !== 'production') globalForData.dataStore = dataStore;
-
+const dataStore = globalForData.dataStore;
 
 // --- Stock Report Functions ---
 export const getReports = async (): Promise<StockReport[]> => {
