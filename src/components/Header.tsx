@@ -10,10 +10,13 @@ import { cn } from '@/lib/utils';
 import { logoutAgent } from '@/app/login/actions';
 import { logout } from '@/app/admin/login/actions';
 
-const navItems = [
+const agentNavItems = [
   { href: '/', icon: Home, label: 'Dashboard' },
   { href: '/entry', icon: PlusCircle, label: 'New Report' },
-  { href: '/admin', icon: UserCog, label: 'Admin' },
+];
+
+const adminNavItems = [
+    { href: '/admin', icon: UserCog, label: 'Admin Panel' },
 ];
 
 export default function Header({ pageTitle }: { pageTitle: string }) {
@@ -27,8 +30,11 @@ export default function Header({ pageTitle }: { pageTitle: string }) {
     await logout();
   };
 
-  const isAgentRoute = ['/', '/entry'].includes(pathname);
   const isAdminRoute = pathname.startsWith('/admin');
+  const isAgentRoute = !isAdminRoute;
+
+  const navItems = isAdminRoute ? adminNavItems : agentNavItems;
+  const homeLink = isAdminRoute ? '/admin' : '/';
 
   // Don't render header on login pages
   if (pathname === '/admin/login' || pathname === '/login') {
@@ -47,7 +53,7 @@ export default function Header({ pageTitle }: { pageTitle: string }) {
         <SheetContent side="left" className="sm:max-w-xs">
           <nav className="grid gap-6 text-lg font-medium">
             <Link
-              href="/"
+              href={homeLink}
               className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
             >
               <Package2 className="h-5 w-5 transition-all group-hover:scale-110" />
@@ -72,7 +78,7 @@ export default function Header({ pageTitle }: { pageTitle: string }) {
                   <button type="submit">Logout Agent</button>
               </form>
             )}
-             {isAdminRoute && !pathname.includes('login') && (
+             {isAdminRoute && (
                 <form action={handleAdminLogout} className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
                     <LogOut className="h-5 w-5" />
                     <button type="submit">Logout Admin</button>
@@ -93,7 +99,7 @@ export default function Header({ pageTitle }: { pageTitle: string }) {
             </Button>
           </form>
         )}
-         {isAdminRoute && !pathname.includes('login') && (
+         {isAdminRoute && (
             <form action={handleAdminLogout}>
                 <Button variant="outline" size="sm">
                     <LogOut className="mr-2 h-4 w-4" />
