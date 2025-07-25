@@ -9,6 +9,9 @@ import StockReportDashboard from '@/components/StockReportDashboard';
 import RegisterDepartmentForm from '@/components/RegisterDepartmentForm';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import AgentList from '@/components/AgentList';
+import DepartmentList from '@/components/DepartmentList';
+import { Separator } from '@/components/ui/separator';
 
 
 export default function AdminPage() {
@@ -26,38 +29,46 @@ export default function AdminPage() {
           <div className="flex justify-between items-center mb-4">
             <TabsList className="grid grid-cols-3">
               <TabsTrigger value="reports">Stock Reports</TabsTrigger>
-              <TabsTrigger value="registerAgent">Register Agent</TabsTrigger>
-              <TabsTrigger value="registerDepartment">Register Department</TabsTrigger>
+              <TabsTrigger value="registerAgent">Manage Agents</TabsTrigger>
+              <TabsTrigger value="registerDepartment">Manage Departments</TabsTrigger>
             </TabsList>
           </div>
           <TabsContent value="reports">
             <StockReportDashboard />
           </TabsContent>
           <TabsContent value="registerAgent">
-            <Card>
-              <CardHeader>
-                <CardTitle>Register New Agent</CardTitle>
-                <CardDescription>
-                  Fill out the form below to add a new sales agent to the system.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RegisterAgentForm />
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Register New Agent</CardTitle>
+                  <CardDescription>
+                    Fill out the form below to add a new sales agent to the system.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <RegisterAgentForm />
+                </CardContent>
+              </Card>
+              <Separator />
+              <AgentList />
+            </div>
           </TabsContent>
            <TabsContent value="registerDepartment">
-            <Card>
-              <CardHeader>
-                <CardTitle>Register New Department</CardTitle>
-                <CardDescription>
-                  Create credentials for a department to view reports.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RegisterDepartmentForm />
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Register New Department</CardTitle>
+                  <CardDescription>
+                    Create credentials for a department to view reports.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <RegisterDepartmentForm />
+                </CardContent>
+              </Card>
+              <Separator />
+              <DepartmentList />
+            </div>
           </TabsContent>
         </Tabs>
       </div>

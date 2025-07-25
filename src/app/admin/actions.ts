@@ -16,7 +16,7 @@ const agentSchema = z.object({
 export async function registerAgent(values: z.infer<typeof agentSchema>) {
   const validatedData = agentSchema.parse(values);
   await addAgent(validatedData);
-  // Optionally revalidate a path if you have a page that lists agents
+  revalidatePath('/admin');
 }
 
 
@@ -30,5 +30,5 @@ const departmentSchema = z.object({
 export async function registerDepartment(values: z.infer<typeof departmentSchema>) {
   const validatedData = departmentSchema.parse(values);
   await addDepartment(validatedData);
-   // Optionally revalidate a path if you have a page that lists departments
+  revalidatePath('/admin');
 }
