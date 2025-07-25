@@ -52,15 +52,22 @@ export const addReport = async (reportData: Omit<StockReport, 'id' | 'products'>
 
 
 // --- Admin User Functions ---
-// Admin user login remains local as it's for initial access.
-const adminUsers: AdminUser[] = [
-    { id: 'admin001', email: 'admin1@example.com', password: 'password123' },
-    { id: 'admin002', email: 'admin2@example.com', password: 'password123' },
-];
-
-export const getAdminUserByEmail = async (email: string): Promise<AdminUser | undefined> => {
-    return Promise.resolve(adminUsers.find(user => user.email === email));
-};
+// Admin user login now calls the backend for verification
+export const loginAdmin = async (credentials: Pick<AdminUser, 'email' | 'password'>): Promise<AdminUser | null> => {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'login_admin', data: credentials }),
+        });
+        if (!response.ok) return null;
+        const result = await response.json();
+        return result.success ? result.user : null;
+    } catch (error) {
+        console.error('Admin login failed:', error);
+        return null;
+    }
+}
 
 
 // --- Sales Agent Functions ---
@@ -80,12 +87,20 @@ export const getAgents = async (): Promise<AdminUser[]> => {
     }
 };
 
-export const getAgentByEmail = async (email: string): Promise<AdminUser | undefined> => {
-    // This still fetches all agents and then finds the one, which is inefficient.
-    // Ideally, the PHP backend would have a dedicated `get_agent_by_email` action.
-    // For now, we'll work with the existing structure.
-    const agents = await getAgents();
-    return agents.find(agent => agent.email === email);
+export const loginAgent = async (credentials: Pick<AdminUser, 'email' | 'password'>): Promise<AdminUser | null> => {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'login_agent', data: credentials }),
+        });
+        if (!response.ok) return null;
+        const result = await response.json();
+        return result.success ? result.user : null;
+    } catch (error) {
+        console.error('Agent login failed:', error);
+        return null;
+    }
 };
 
 export const addAgent = async (agentData: Omit<AdminUser, 'id'>): Promise<AdminUser> => {

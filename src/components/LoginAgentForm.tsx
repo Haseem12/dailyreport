@@ -2,7 +2,7 @@
 "use client";
 
 import { useActionState } from 'react';
-import { loginAgent } from '@/app/login/actions';
+import { loginAgentAction } from '@/app/login/actions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
@@ -17,7 +17,7 @@ const formSchema = z.object({
 });
 
 export default function LoginAgentForm() {
-  const [state, formAction] = useActionState(loginAgent, undefined);
+  const [state, formAction] = useActionState(loginAgentAction, undefined);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

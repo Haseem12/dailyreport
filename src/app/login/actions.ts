@@ -3,15 +3,19 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { getAgentByEmail } from '@/lib/data';
+import { loginAgent } from '@/lib/data';
 
-export async function loginAgent(prevState: { error: string | undefined } | undefined, formData: FormData) {
+export async function loginAgentAction(prevState: { error: string | undefined } | undefined, formData: FormData) {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
+  
+  if (!email || !password) {
+    return { error: 'Email and password are required.' };
+  }
 
-  const agent = await getAgentByEmail(email);
+  const agent = await loginAgent({ email, password });
 
-  if (!agent || agent.password !== password) {
+  if (!agent) {
     return { error: 'Invalid email or password' };
   }
 

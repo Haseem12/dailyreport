@@ -66,18 +66,32 @@ export default function Header({ pageTitle }: { pageTitle: string }) {
                   {item.label}
                 </Link>
             ))}
+             {isAgentRoute && (
+              <form action={handleAgentLogout} className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
+                  <LogOut className="h-5 w-5" />
+                  <button type="submit">Logout Agent</button>
+              </form>
+            )}
+             {isAdminRoute && !pathname.includes('login') && (
+                <form action={handleAdminLogout} className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
+                    <LogOut className="h-5 w-5" />
+                    <button type="submit">Logout Admin</button>
+                </form>
+            )}
           </nav>
         </SheetContent>
       </Sheet>
       <div className="flex-1">
         <h1 className="text-lg font-semibold md:text-2xl">{pageTitle}</h1>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="hidden sm:flex items-center gap-2">
         {isAgentRoute && (
-          <Button onClick={handleAgentLogout} variant="outline" size="sm">
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout Agent
-          </Button>
+          <form action={handleAgentLogout}>
+            <Button variant="outline" size="sm">
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout Agent
+            </Button>
+          </form>
         )}
          {isAdminRoute && !pathname.includes('login') && (
             <form action={handleAdminLogout}>
