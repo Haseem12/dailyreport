@@ -11,7 +11,7 @@ const productSchema = z.object({
   batchNumber: z.string().min(1, 'Batch number is required'),
   supplyDate: z.date({ required_error: 'Supply date is required' }),
   expiryDate: z.date({ required_error: 'Expiry date is required' }),
-  productCondition: z.enum(['Good', 'Damaged']),
+  productCondition: z.enum(['Good', 'Damaged', 'Expired']),
 });
 
 const formSchema = z.object({
@@ -33,7 +33,7 @@ export async function submitStockReport(values: z.infer<typeof formSchema>) {
     batchNumber: validatedData.products[0]?.batchNumber || 'N/A',
     supplyDate: validatedData.products[0]?.supplyDate || new Date(),
     expiryDate: validatedData.products[0]?.expiryDate || new Date(),
-    productCondition: validatedData.products.some(p => p.productCondition === 'Damaged') ? 'Damaged' : 'Good' as 'Good' | 'Damaged',
+    productCondition: validatedData.products.some(p => p.productCondition === 'Expired') ? 'Expired' : validatedData.products.some(p => p.productCondition === 'Damaged') ? 'Damaged' : 'Good' as 'Good' | 'Damaged' | 'Expired',
   };
 
   await addReport(reportData);
