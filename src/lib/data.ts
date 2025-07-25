@@ -5,6 +5,11 @@ import { v4 as uuidv4 } from 'uuid';
 // The base URL for the PHP backend
 const API_URL = 'https://sajfoods.net/dailyreport/api.php';
 
+// Helper function to format date to YYYY-MM-DD
+const formatDate = (date: Date): string => {
+  return date.toISOString().split('T')[0];
+};
+
 // --- Stock Report Functions ---
 export const getReports = async (): Promise<StockReport[]> => {
   try {
@@ -21,9 +26,11 @@ export const getReports = async (): Promise<StockReport[]> => {
     // Dates will be strings from JSON, so we need to convert them back to Date objects
     return reports.map((report: any) => ({
       ...report,
-      supplyDate: new Date(report.supplyDate),
       dateOfVisit: new Date(report.dateOfVisit),
-      expiryDate: new Date(report.expiryDate),
+      // Ensure other dates are converted if they exist, otherwise default
+      supplyDate: report.supplyDate ? new Date(report.supplyDate) : new Date(),
+      expiryDate: report.expiryDate ? new Date(report.expiryDate) : new Date(),
+      products: report.products || [],
     }));
   } catch (error) {
     console.error('Failed to fetch reports:', error);
@@ -33,10 +40,30 @@ export const getReports = async (): Promise<StockReport[]> => {
 
 export const addReport = async (reportData: Omit<StockReport, 'id' | 'products'> & { products: Omit<ProductStock, 'id'|'remarks'|'action'>[] }): Promise<StockReport> => {
   try {
+    // Create a mutable copy and format dates
+    const dataToSend = {
+      ...reportData,
+      dateOfVisit: formatDate(reportData.dateOfVisit),
+      products: reportData.products.map(p => ({
+        ...p,
+        supplyDate: formatDate(p.supplyDate),
+        expiryDate: formatDate(p.expiryDate),
+      }))
+    };
+    
+    // These top-level dates are derived in the action, let's format them too if they exist
+    if (reportData.supplyDate) {
+        (dataToSend as any).supplyDate = formatDate(reportData.supplyDate);
+    }
+    if (reportData.expiryDate) {
+        (dataToSend as any).expiryDate = formatDate(reportData.expiryDate);
+    }
+
+
     const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'add_report', data: reportData }),
+        body: JSON.stringify({ action: 'add_report', data: dataToSend }),
     });
 
     if (!response.ok) {
@@ -52,7 +79,6 @@ export const addReport = async (reportData: Omit<StockReport, 'id' | 'products'>
 
 
 // --- Admin User Functions ---
-// Admin user login now calls the backend for verification
 export const loginAdmin = async (credentials: Pick<AdminUser, 'email' | 'password'>): Promise<AdminUser | null> => {
     try {
         const response = await fetch(API_URL, {
