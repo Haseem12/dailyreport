@@ -177,11 +177,37 @@ export default function StockEntryForm() {
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl><SelectTrigger><SelectValue placeholder="Select Product" /></SelectTrigger></FormControl>
                                 <SelectContent>
-                                <SelectItem value="Indomie Noodles">Indomie Noodles</SelectItem>
-                                <SelectItem value="Dangote Sugar">Dangote Sugar</SelectItem>
-                                <SelectItem value="Peak Milk">Peak Milk</SelectItem>
-                                <SelectItem value="Golden Penny Semovita">Golden Penny Semovita</SelectItem>
-                                <SelectItem value="Coca-Cola 50cl">Coca-Cola 50cl</SelectItem>
+                                    <SelectItem value="1.2L (BOTTLE/JERRYCAN): Plain">1.2L (BOTTLE/JERRYCAN): Plain</SelectItem>
+                                    <SelectItem value="2.LT (BOTTLE/JERRYCAN): Plain">2.LT (BOTTLE/JERRYCAN): Plain</SelectItem>
+                                    <SelectItem value="3.LT (BOTTLE/JERRYCAN): Banana">3.LT (BOTTLE/JERRYCAN): Banana</SelectItem>
+                                    <SelectItem value="4.LT (BOTTLE/JERRYCAN): Chocolate">4.LT (BOTTLE/JERRYCAN): Chocolate</SelectItem>
+                                    <SelectItem value="5.LT (BOTTLE/JERRYCAN): Strawberry">5.LT (BOTTLE/JERRYCAN): Strawberry</SelectItem>
+                                    <SelectItem value="6.LT (BOTTLE/JERRYCAN): Sugar Free">6.LT (BOTTLE/JERRYCAN): Sugar Free</SelectItem>
+                                    <SelectItem value="7.50CL BOTTLE/PLATE: Plain">7.50CL BOTTLE/PLATE: Plain</SelectItem>
+                                    <SelectItem value="8.50CL BOTTLE/PLATE: Banana">8.50CL BOTTLE/PLATE: Banana</SelectItem>
+                                    <SelectItem value="9.50CL BOTTLE/PLATE: Chocolate">9.50CL BOTTLE/PLATE: Chocolate</SelectItem>
+                                    <SelectItem value="10.50CL BOTTLE/PLATE: Strawberry">10.50CL BOTTLE/PLATE: Strawberry</SelectItem>
+                                    <SelectItem value="11.50CL BOTTLE/PLATE: Sugar Free">11.50CL BOTTLE/PLATE: Sugar Free</SelectItem>
+                                    <SelectItem value="12.60CL PLATE: Plain">12.60CL PLATE: Plain</SelectItem>
+                                    <SelectItem value="13.60CL PLATE: Banana">13.60CL PLATE: Banana</SelectItem>
+                                    <SelectItem value="14.60CL PLATE: Chocolate">14.60CL PLATE: Chocolate</SelectItem>
+                                    <SelectItem value="15.60CL PLATE: Strawberry">15.60CL PLATE: Strawberry</SelectItem>
+                                    <SelectItem value="16.60CL PLATE: Sugar Free">16.60CL PLATE: Sugar Free</SelectItem>
+                                    <SelectItem value="17.40CL PLATE/BOTTLE: Plain">17.40CL PLATE/BOTTLE: Plain</SelectItem>
+                                    <SelectItem value="18.40CL PLATE/BOTTLE: Banana">18.40CL PLATE/BOTTLE: Banana</SelectItem>
+                                    <SelectItem value="19.40CL PLATE/BOTTLE: Chocolate">19.40CL PLATE/BOTTLE: Chocolate</SelectItem>
+                                    <SelectItem value="20.40CL PLATE/BOTTLE: Strawberry">20.40CL PLATE/BOTTLE: Strawberry</SelectItem>
+                                    <SelectItem value="21.40CL PLATE/BOTTLE: Greek Yoghurt Sweetened">21.40CL PLATE/BOTTLE: Greek Yoghurt Sweetened</SelectItem>
+                                    <SelectItem value="22.40CL PLATE/BOTTLE: Greek Yoghurt Unsweetened">22.40CL PLATE/BOTTLE: Greek Yoghurt Unsweetened</SelectItem>
+                                    <SelectItem value="23.38CL: Banana">23.38CL: Banana</SelectItem>
+                                    <SelectItem value="24.38CL: Chocolate">24.38CL: Chocolate</SelectItem>
+                                    <SelectItem value="25.38CL: Strawberry">25.38CL: Strawberry</SelectItem>
+                                    <SelectItem value="26.38CL: Plain">26.38CL: Plain</SelectItem>
+                                    <SelectItem value="SBT:">SBT:</SelectItem>
+                                    <SelectItem value="QLT:">QLT:</SelectItem>
+                                    <SelectItem value="BT:">BT:</SelectItem>
+                                    <SelectItem value="BEX:">BEX:</SelectItem>
+                                    <SelectItem value="BE:">BE:</SelectItem>
                                 </SelectContent>
                             </Select>
                             <FormMessage /></FormItem>
