@@ -2,138 +2,136 @@
 import type { StockReport, AdminUser, Department, ProductStock } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
 
-// In-memory data store, structured to persist across requests in a dev environment.
-// We use a global variable to simulate a database that persists across hot reloads.
-const globalForData = globalThis as unknown as {
-  dataStore: {
-    reports: StockReport[];
-    adminUsers: AdminUser[];
-    departments: Department[];
-    salesAgents: AdminUser[];
-  }
-};
-
-if (!globalForData.dataStore) {
-  globalForData.dataStore = {
-    reports: [
-    {
-      id: 'REP001',
-      salesAgentName: 'John Doe',
-      customerName: 'Shoprite Lekki',
-      customerAddress: '123 Admiralty Way, Lekki, Lagos',
-      supplyDate: new Date('2024-07-15'),
-      dateOfVisit: new Date('2024-07-20'),
-      batchNumber: 'B012345',
-      expiryDate: new Date('2025-06-30'),
-      productCondition: 'Good',
-      outstandingBalance: 150000,
-      products: [
-        { id: 'PROD01', productName: 'Indomie Noodles', quantityRemaining: 50, remarks: 'Stock running low', action: 'Reorder' },
-        { id: 'PROD02', productName: 'Dangote Sugar', quantityRemaining: 120, remarks: 'Sufficient stock', action: 'Monitor' },
-        { id: 'PROD03', productName: 'Peak Milk', quantityRemaining: 5, remarks: 'Almost out of stock', action: 'Urgent Reorder' },
-      ],
-    },
-    {
-      id: 'REP002',
-      salesAgentName: 'Jane Smith',
-      customerName: 'Ebeano Supermarket',
-      customerAddress: '456 Chevron Drive, Lekki, Lagos',
-      supplyDate: new Date('2024-07-16'),
-      dateOfVisit: new Date('2024-07-21'),
-      batchNumber: 'B067890',
-      expiryDate: new Date('2025-08-15'),
-      productCondition: 'Good',
-      outstandingBalance: 75000,
-      products: [
-        { id: 'PROD01', productName: 'Indomie Noodles', quantityRemaining: 200, remarks: 'Overstocked', action: 'Promotional Sale' },
-        { id: 'PROD04', productName: 'Golden Penny Semovita', quantityRemaining: 80, remarks: 'Selling well', action: 'Monitor' },
-      ],
-    },
-      {
-      id: 'REP003',
-      salesAgentName: 'John Doe',
-      customerName: 'Justrite Ikeja',
-      customerAddress: '789 Allen Avenue, Ikeja, Lagos',
-      supplyDate: new Date('2024-07-18'),
-      dateOfVisit: new Date('2024-07-22'),
-      batchNumber: 'B112233',
-      expiryDate: new Date('2025-01-20'),
-      productCondition: 'Damaged',
-      outstandingBalance: 25000,
-      products: [
-        { id: 'PROD02', productName: 'Dangote Sugar', quantityRemaining: 30, remarks: 'Some bags torn', action: 'Return to warehouse' },
-        { id: 'PROD05', productName: 'Coca-Cola 50cl', quantityRemaining: 240, remarks: 'High demand', action: 'Monitor' },
-      ],
-    },
-  ],
-    adminUsers: [
-      { id: 'admin001', email: 'admin1@example.com', password: 'password123' },
-      { id: 'admin002', email: 'admin2@example.com', password: 'password123' },
-    ],
-    departments: [],
-    salesAgents: [],
-  };
-}
-
-const dataStore = globalForData.dataStore;
+// The base URL for the PHP backend
+const API_URL = 'https://sajfoods.net/dailyreport/api.php';
 
 // --- Stock Report Functions ---
 export const getReports = async (): Promise<StockReport[]> => {
-  return Promise.resolve(dataStore.reports);
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_reports' }),
+      cache: 'no-store', // Ensure fresh data is fetched every time
+    });
+    if (!response.ok) {
+      throw new Error(`Network response was not ok: ${response.statusText}`);
+    }
+    const reports = await response.json();
+    // Dates will be strings from JSON, so we need to convert them back to Date objects
+    return reports.map((report: any) => ({
+      ...report,
+      supplyDate: new Date(report.supplyDate),
+      dateOfVisit: new Date(report.dateOfVisit),
+      expiryDate: new Date(report.expiryDate),
+    }));
+  } catch (error) {
+    console.error('Failed to fetch reports:', error);
+    return []; // Return an empty array on error
+  }
 };
 
 export const addReport = async (reportData: Omit<StockReport, 'id' | 'products'> & { products: Omit<ProductStock, 'id'|'remarks'|'action'>[] }): Promise<StockReport> => {
-  const newReport: StockReport = {
-    id: `REP${(dataStore.reports.length + 1).toString().padStart(3, '0')}`,
-    ...reportData,
-    products: reportData.products.map((p, index) => ({
-        ...p,
-        id: `PROD${(Date.now() + index).toString()}`,
-        remarks: 'N/A', // Default remarks
-        action: 'N/A' // Default action
-    })),
-  };
-  dataStore.reports.unshift(newReport); // Add to the beginning of the array
-  return Promise.resolve(newReport);
+  try {
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_report', data: reportData }),
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to add report: ${errorText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error adding report:', error);
+    throw error;
+  }
 };
 
 
 // --- Admin User Functions ---
+// Admin user login remains local as it's for initial access.
+const adminUsers: AdminUser[] = [
+    { id: 'admin001', email: 'admin1@example.com', password: 'password123' },
+    { id: 'admin002', email: 'admin2@example.com', password: 'password123' },
+];
+
 export const getAdminUserByEmail = async (email: string): Promise<AdminUser | undefined> => {
-    // Admin users are static and read from the initial config
-    return Promise.resolve(dataStore.adminUsers.find(user => user.email === email));
+    return Promise.resolve(adminUsers.find(user => user.email === email));
 };
 
 
 // --- Sales Agent Functions ---
 export const getAgents = async (): Promise<AdminUser[]> => {
-    return Promise.resolve(dataStore.salesAgents);
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'get_agents' }),
+            cache: 'no-store',
+        });
+        if (!response.ok) throw new Error('Failed to fetch agents');
+        return await response.json();
+    } catch (error) {
+        console.error('Failed to fetch agents:', error);
+        return [];
+    }
 };
 
 export const getAgentByEmail = async (email: string): Promise<AdminUser | undefined> => {
-    return Promise.resolve(dataStore.salesAgents.find(agent => agent.email === email));
+    // This still fetches all agents and then finds the one, which is inefficient.
+    // Ideally, the PHP backend would have a dedicated `get_agent_by_email` action.
+    // For now, we'll work with the existing structure.
+    const agents = await getAgents();
+    return agents.find(agent => agent.email === email);
 };
 
 export const addAgent = async (agentData: Omit<AdminUser, 'id'>): Promise<AdminUser> => {
-  const newAgent: AdminUser = {
-    id: `agent${uuidv4()}`,
-    ...agentData,
-  };
-  dataStore.salesAgents.push(newAgent);
-  return Promise.resolve(newAgent);
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'add_agent', data: agentData }),
+        });
+        if (!response.ok) throw new Error('Failed to add agent');
+        return await response.json();
+    } catch (error) {
+        console.error('Error adding agent:', error);
+        throw error;
+    }
 };
 
 
 // --- Department Functions ---
 export const getDepartments = async (): Promise<Department[]> => {
-    return Promise.resolve(dataStore.departments);
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'get_departments' }),
+            cache: 'no-store',
+        });
+        if (!response.ok) throw new Error('Failed to fetch departments');
+        return await response.json();
+    } catch (error) {
+        console.error('Failed to fetch departments:', error);
+        return [];
+    }
 };
 
 export const addDepartment = async (departmentData: Omit<Department, 'id'>): Promise<Department> => {
-  const newDepartment: Department = {
-    id: `dept${uuidv4()}`,
-    ...departmentData,
-  };
-  dataStore.departments.push(newDepartment);
-  return Promise.resolve(newDepartment);
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'add_department', data: departmentData }),
+        });
+        if (!response.ok) throw new Error('Failed to add department');
+        return await response.json();
+    } catch (error) {
+        console.error('Error adding department:', error);
+        throw error;
+    }
 };
