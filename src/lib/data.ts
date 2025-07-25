@@ -101,11 +101,7 @@ export const addReport = async (reportData: Omit<StockReport, 'id' | 'products'>
 // --- Admin User Functions ---
 export const getAdminUserByEmail = async (email: string): Promise<AdminUser | undefined> => {
     // Admin users are static and read from the initial config
-    const staticAdminUsers = [
-        { id: 'admin001', email: 'admin1@example.com', password: 'password123' },
-        { id: 'admin002', email: 'admin2@example.com', password: 'password123' },
-    ];
-    return Promise.resolve(staticAdminUsers.find(user => user.email === email));
+    return Promise.resolve(dataStore.adminUsers.find(user => user.email === email));
 };
 
 
