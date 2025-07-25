@@ -1,3 +1,4 @@
+
 export interface ProductStock {
   id: string;
   productName: string;
@@ -5,7 +6,7 @@ export interface ProductStock {
   batchNumber: string;
   supplyDate: Date;
   expiryDate: Date;
-  productCondition: 'Good' | 'Damaged';
+  productCondition: 'Good' | 'Damaged' | 'Expired';
   remarks?: string; // Optional
   action?: string; // Optional
 }
@@ -23,7 +24,7 @@ export interface StockReport {
   supplyDate?: Date;
   batchNumber?: string;
   expiryDate?: Date;
-  productCondition?: 'Good' | 'Damaged';
+  productCondition?: 'Good' | 'Damaged' | 'Expired';
 }
 
 export interface AdminUser {

@@ -45,7 +45,21 @@ export default function StockReportDashboard() {
     const fetchReports = async () => {
       try {
         const fetchedReports = await getReports();
-        setReports(fetchedReports);
+        const processedReports = fetchedReports.map(report => {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let overallCondition: 'Good' | 'Damaged' | 'Expired' = 'Good';
+            if (report.productss?.some(p => p.productCondition === 'Damaged')) {
+                overallCondition = 'Damaged';
+            }
+            if (report.productss?.some(p => new Date(p.expiryDate) < today)) {
+                overallCondition = 'Expired';
+            }
+
+            return { ...report, productCondition: overallCondition };
+        });
+        setReports(processedReports);
       } catch (error) {
         console.error("Failed to fetch reports:", error);
       } finally {
@@ -65,6 +79,13 @@ export default function StockReportDashboard() {
       report.customerName.toLowerCase().includes(filter.toLowerCase()) ||
       report.salesAgentName.toLowerCase().includes(filter.toLowerCase())
   );
+
+  const getBadgeVariant = (condition?: 'Good' | 'Damaged' | 'Expired') => {
+    if (condition === 'Damaged' || condition === 'Expired') {
+        return 'destructive';
+    }
+    return 'secondary';
+  }
 
   return (
     <>
@@ -144,7 +165,7 @@ export default function StockReportDashboard() {
                         </TableCell>
                         <TableCell className="hidden md:table-cell">{report.salesAgentName}</TableCell>
                         <TableCell className="hidden md:table-cell">
-                        <Badge variant={report.productCondition === 'Damaged' ? 'destructive' : 'secondary'}>
+                        <Badge variant={getBadgeVariant(report.productCondition)}>
                             {report.productCondition}
                         </Badge>
                         </TableCell>

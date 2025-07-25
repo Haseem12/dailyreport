@@ -36,7 +36,7 @@ const productSchema = z.object({
   batchNumber: z.string().min(1, 'Batch number is required'),
   supplyDate: z.date({ required_error: 'Supply date is required' }),
   expiryDate: z.date({ required_error: 'Expiry date is required' }),
-  productCondition: z.enum(['Good', 'Damaged']),
+  productCondition: z.enum(['Good', 'Damaged', 'Expired']),
 });
 
 const formSchema = z.object({
@@ -235,6 +235,7 @@ export default function StockEntryForm() {
                                 <SelectContent>
                                 <SelectItem value="Good">Good</SelectItem>
                                 <SelectItem value="Damaged">Damaged</SelectItem>
+                                <SelectItem value="Expired">Expired</SelectItem>
                                 </SelectContent>
                             </Select>
                             <FormMessage /></FormItem>

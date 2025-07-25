@@ -12,9 +12,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import type { StockReport } from '@/lib/types';
+import type { StockReport, ProductStock } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 
 interface StockReportDetailsDialogProps {
   isOpen: boolean;
@@ -33,6 +32,21 @@ export default function StockReportDetailsDialog({
 
   const handleClose = () => onOpenChange(false);
   const products = report.productss || [];
+
+  const getProductCondition = (product: ProductStock): { condition: 'Good' | 'Damaged' | 'Expired', variant: 'secondary' | 'destructive' } => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); 
+    const expiryDate = new Date(product.expiryDate);
+    
+    if (expiryDate < today) {
+        return { condition: 'Expired', variant: 'destructive' };
+    }
+    if (product.productCondition === 'Damaged') {
+        return { condition: 'Damaged', variant: 'destructive' };
+    }
+    return { condition: 'Good', variant: 'secondary' };
+  }
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -79,20 +93,23 @@ export default function StockReportDetailsDialog({
                     </TableHeader>
                     <TableBody>
                         {products.length > 0 ? (
-                          products.map((product, index) => (
-                            <TableRow key={product.id || index}>
-                                <TableCell className="font-medium">{product.productName}</TableCell>
-                                <TableCell className="text-center">{product.quantityRemaining}</TableCell>
-                                <TableCell>{product.batchNumber}</TableCell>
-                                <TableCell>{new Date(product.supplyDate).toLocaleDateString()}</TableCell>
-                                <TableCell>{new Date(product.expiryDate).toLocaleDateString()}</TableCell>
-                                <TableCell className="text-right">
-                                  <Badge variant={product.productCondition === 'Damaged' ? 'destructive' : 'secondary'}>
-                                    {product.productCondition}
-                                  </Badge>
-                                </TableCell>
-                            </TableRow>
-                          ))
+                          products.map((product, index) => {
+                            const { condition, variant } = getProductCondition(product);
+                            return (
+                                <TableRow key={product.id || index}>
+                                    <TableCell className="font-medium">{product.productName}</TableCell>
+                                    <TableCell className="text-center">{product.quantityRemaining}</TableCell>
+                                    <TableCell>{product.batchNumber}</TableCell>
+                                    <TableCell>{new Date(product.supplyDate).toLocaleDateString()}</TableCell>
+                                    <TableCell>{new Date(product.expiryDate).toLocaleDateString()}</TableCell>
+                                    <TableCell className="text-right">
+                                    <Badge variant={variant}>
+                                        {condition}
+                                    </Badge>
+                                    </TableCell>
+                                </TableRow>
+                            )
+                          })
                         ) : (
                           <TableRow>
                             <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
