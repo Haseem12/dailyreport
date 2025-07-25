@@ -1,4 +1,3 @@
-
 import type { StockReport, AdminUser, Department, ProductStock } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -80,9 +79,12 @@ export const addReport = async (reportData: Omit<StockReport, 'id' | 'productss'
 
 // --- Admin User Functions ---
 export const loginAdmin = async (credentials: {username: string, password: string}): Promise<AdminUser | null> => {
-    // Hardcoded master admin login
-    if (credentials.username === 'admin' && credentials.password === 'admin') {
-      return { id: 'master_admin', email: 'admin' };
+    // Master admin login from environment variables
+    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'admin';
+
+    if (credentials.username === adminUsername && credentials.password === adminPassword) {
+      return { id: 'master_admin', email: adminUsername };
     }
 
     // Try to log in as a department - assumes username field holds email for departments
