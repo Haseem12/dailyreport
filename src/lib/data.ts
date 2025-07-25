@@ -77,35 +77,6 @@ export const addReport = async (reportData: Omit<StockReport, 'id' | 'productss'
   }
 };
 
-
-// --- Admin User Functions ---
-export const loginAdmin = async (credentials: {email: string, password: string}): Promise<AdminUser | null> => {
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'login_department', data: credentials }),
-        });
-
-        if (response.ok) {
-            const result = await response.json();
-            if (result.success) {
-                // Return a user object that conforms to the AdminUser type
-                return {
-                    id: result.user.id,
-                    email: result.user.email,
-                    fullName: result.user.departmentName, // Use departmentName for fullName
-                };
-            }
-        }
-    } catch (error) {
-        console.error('Admin login failed:', error);
-    }
-
-    return null; // Return null if login is unsuccessful for any reason
-}
-
-
 // --- Sales Agent Functions ---
 export const getAgents = async (): Promise<AdminUser[]> => {
     try {
