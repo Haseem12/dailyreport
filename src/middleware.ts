@@ -14,6 +14,9 @@ export function middleware(request: NextRequest) {
   if (adminSession && pathname.startsWith('/admin/login')) {
     return NextResponse.redirect(new URL('/admin', request.url));
   }
+  if (adminSession && pathname.startsWith('/register')) {
+     return NextResponse.redirect(new URL('/admin', request.url));
+  }
 
   // Define protected routes
   const agentRoutes = ['/'];
@@ -36,5 +39,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/admin/login', '/', '/entry', '/login'],
+  matcher: ['/admin/:path*', '/admin/login', '/', '/entry', '/login', '/register'],
 };
