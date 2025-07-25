@@ -1,4 +1,5 @@
-import type { StockReport, AdminUser, Department } from '@/lib/types';
+
+import type { StockReport, AdminUser, Department, ProductStock } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
 
 // In-memory data stores
@@ -59,8 +60,8 @@ let adminUsers: AdminUser[] = [
 ];
 let departments: Department[] = [];
 let salesAgents: AdminUser[] = [
-    { id: 'agent001', fullName: 'John Doe', email: 'john.doe@example.com', phone: '08012345678' },
-    { id: 'agent002', fullName: 'Jane Smith', email: 'jane.smith@example.com', phone: '08087654321' },
+    { id: 'agent001', fullName: 'John Doe', email: 'john.doe@example.com', phone: '08012345678', password: 'password123' },
+    { id: 'agent002', fullName: 'Jane Smith', email: 'jane.smith@example.com', phone: '08087654321', password: 'password123' },
 ];
 
 
@@ -75,7 +76,7 @@ export const addReport = async (reportData: Omit<StockReport, 'id' | 'products'>
     ...reportData,
     products: reportData.products.map((p, index) => ({
         ...p,
-        id: `PROD${index.toString().padStart(2, '0')}`,
+        id: `PROD${(Date.now() + index).toString()}`,
         remarks: 'N/A', // Default remarks
         action: 'N/A' // Default action
     })),
@@ -96,14 +97,16 @@ export const getAgents = async (): Promise<AdminUser[]> => {
     return Promise.resolve(salesAgents);
 };
 
+export const getAgentByEmail = async (email: string): Promise<AdminUser | undefined> => {
+    return Promise.resolve(salesAgents.find(agent => agent.email === email));
+};
+
 export const addAgent = async (agentData: Omit<AdminUser, 'id'>): Promise<AdminUser> => {
   const newAgent: AdminUser = {
     id: `agent${(salesAgents.length + 1).toString().padStart(3, '0')}`,
     ...agentData,
   };
   salesAgents.push(newAgent);
-  // Also add them to the adminUsers list so they can potentially log in to other systems
-  adminUsers.push({ ...newAgent, password: agentData.password || 'password123' });
   return Promise.resolve(newAgent);
 };
 

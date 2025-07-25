@@ -4,9 +4,11 @@
 import Link from 'next/link';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Home, Menu, Package2, PlusCircle, UserCircle, UserCog } from 'lucide-react';
+import { Home, Menu, Package2, PlusCircle, UserCog, LogOut } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { logoutAgent } from '@/app/login/actions';
+import { logout } from '@/app/admin/login/actions';
 
 const navItems = [
   { href: '/', icon: Home, label: 'Dashboard' },
@@ -17,8 +19,19 @@ const navItems = [
 export default function Header({ pageTitle }: { pageTitle: string }) {
   const pathname = usePathname();
 
-  // Don't render header on the admin login page
-  if (pathname === '/admin/login') {
+  const handleAgentLogout = async () => {
+    await logoutAgent();
+  };
+  
+  const handleAdminLogout = async () => {
+    await logout();
+  };
+
+  const isAgentRoute = ['/', '/entry'].includes(pathname);
+  const isAdminRoute = pathname.startsWith('/admin');
+
+  // Don't render header on login pages
+  if (pathname === '/admin/login' || pathname === '/login') {
     return null;
   }
 
@@ -56,8 +69,24 @@ export default function Header({ pageTitle }: { pageTitle: string }) {
           </nav>
         </SheetContent>
       </Sheet>
-      <div className="flex-1 md:grow-0">
+      <div className="flex-1">
         <h1 className="text-lg font-semibold md:text-2xl">{pageTitle}</h1>
+      </div>
+      <div className="flex items-center gap-2">
+        {isAgentRoute && (
+          <Button onClick={handleAgentLogout} variant="outline" size="sm">
+            <LogOut className="mr-2 h-4 w-4" />
+            Logout Agent
+          </Button>
+        )}
+         {isAdminRoute && !pathname.includes('login') && (
+            <form action={handleAdminLogout}>
+                <Button variant="outline" size="sm">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout Admin
+                </Button>
+            </form>
+        )}
       </div>
     </header>
   );

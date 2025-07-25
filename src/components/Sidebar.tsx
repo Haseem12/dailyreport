@@ -16,8 +16,8 @@ const navItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   
-  // Don't render sidebar on the admin login page
-  if (pathname === '/admin/login') {
+  // Don't render sidebar on login pages
+  if (pathname === '/admin/login' || pathname === '/login') {
     return null;
   }
 

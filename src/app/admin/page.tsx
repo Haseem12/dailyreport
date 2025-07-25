@@ -9,8 +9,7 @@ import StockReportDashboard from '@/components/StockReportDashboard';
 import RegisterDepartmentForm from '@/components/RegisterDepartmentForm';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { logout } from './login/actions';
-import { Button } from '@/components/ui/button';
+
 
 export default function AdminPage() {
   const router = useRouter();
@@ -19,11 +18,6 @@ export default function AdminPage() {
   useEffect(() => {
     setIsClient(true);
   }, []);
-
-  const handleLogout = async () => {
-    await logout();
-    router.push('/admin/login');
-  };
 
   return (
     <AdminLayout pageTitle="Admin Panel">
@@ -35,11 +29,6 @@ export default function AdminPage() {
               <TabsTrigger value="registerAgent">Register Agent</TabsTrigger>
               <TabsTrigger value="registerDepartment">Register Department</TabsTrigger>
             </TabsList>
-            {isClient && (
-              <Button onClick={handleLogout} variant="outline">
-                Logout
-              </Button>
-            )}
           </div>
           <TabsContent value="reports">
             <StockReportDashboard />
