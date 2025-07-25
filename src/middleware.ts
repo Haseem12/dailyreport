@@ -8,30 +8,48 @@ export function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Admin routes protection
-  const isAccessingAdmin = pathname.startsWith('/admin');
-  const isAdminLoginPage = pathname === '/admin/login';
-
-  if (!adminSession && isAccessingAdmin && !isAdminLoginPage) {
-    return NextResponse.redirect(new URL('/admin/login', request.url));
-  }
-
-  if (adminSession && isAdminLoginPage) {
-    return NextResponse.redirect(new URL('/admin', request.url));
-  }
-  
-  // Agent routes protection
+  // --- Agent Route Protection ---
   const agentRoutes = ['/', '/entry'];
   const isAccessingAgentRoute = agentRoutes.includes(pathname);
   const isAgentLoginPage = pathname === '/login';
 
-  if (!agentSession && isAccessingAgentRoute) {
-    return NextResponse.redirect(new URL('/login', request.url));
+  if (isAgentLoginPage) {
+    // If agent is logged in, redirect from login page to dashboard
+    if (agentSession) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+    // Otherwise, allow access to login page
+    return NextResponse.next();
   }
-  
-  if (agentSession && isAgentLoginPage) {
-    return NextResponse.redirect(new URL('/', request.url));
+
+  if (isAccessingAgentRoute) {
+    // If trying to access agent routes without a session, redirect to login
+    if (!agentSession) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
   }
+
+
+  // --- Admin Route Protection ---
+  const isAdminRoute = pathname.startsWith('/admin');
+  const isAdminLoginPage = pathname === '/admin/login';
+
+  if (isAdminLoginPage) {
+      // If admin is logged in, redirect from login page to dashboard
+      if (adminSession) {
+          return NextResponse.redirect(new URL('/admin', request.url));
+      }
+      // Otherwise, allow access to login page
+      return NextResponse.next();
+  }
+
+  if (isAdminRoute) {
+      // If trying to access admin routes without a session, redirect to login
+      if (!adminSession) {
+          return NextResponse.redirect(new URL('/admin/login', request.url));
+      }
+  }
+
 
   return NextResponse.next();
 }
