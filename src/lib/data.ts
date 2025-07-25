@@ -30,7 +30,7 @@ export const getReports = async (): Promise<StockReport[]> => {
       // Ensure other dates are converted if they exist, otherwise default
       supplyDate: report.supplyDate ? new Date(report.supplyDate) : new Date(),
       expiryDate: report.expiryDate ? new Date(report.expiryDate) : new Date(),
-      products: report.products || [],
+      productss: report.productss || [],
     }));
   } catch (error) {
     console.error('Failed to fetch reports:', error);
@@ -38,7 +38,7 @@ export const getReports = async (): Promise<StockReport[]> => {
   }
 };
 
-export const addReport = async (reportData: Omit<StockReport, 'id' | 'products'> & { products: Omit<ProductStock, 'id'|'remarks'|'action'>[] }): Promise<StockReport> => {
+export const addReport = async (reportData: Omit<StockReport, 'id' | 'productss'> & { products: Omit<ProductStock, 'id'|'remarks'|'action'>[] }): Promise<StockReport> => {
   try {
     // Create a mutable copy and format dates
     const dataToSend = {
@@ -79,20 +79,36 @@ export const addReport = async (reportData: Omit<StockReport, 'id' | 'products'>
 
 
 // --- Admin User Functions ---
-export const loginAdmin = async (credentials: Pick<AdminUser, 'email' | 'password'>): Promise<AdminUser | null> => {
+export const loginAdmin = async (credentials: {username: string, password: string}): Promise<AdminUser | null> => {
+    // Hardcoded master admin login
+    if (credentials.username === 'admin' && credentials.password === 'admin') {
+      return { id: 'master_admin', email: 'admin' };
+    }
+
+    // Try to log in as a department - assumes username field holds email for departments
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'login_admin', data: credentials }),
+            body: JSON.stringify({ action: 'login_department', data: { email: credentials.username, password: credentials.password } }),
         });
-        if (!response.ok) return null;
-        const result = await response.json();
-        return result.success ? result.user : null;
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success) {
+                // Return a user object that looks like AdminUser
+                return { 
+                    id: result.user.id, 
+                    email: result.user.email, 
+                    fullName: result.user.departmentName 
+                };
+            }
+        }
     } catch (error) {
-        console.error('Admin login failed:', error);
-        return null;
+        console.error('Department login check failed:', error);
+        // Fall through to return null if the department login fails
     }
+
+    return null; // Return null if neither master admin nor department login is successful
 }
 
 
