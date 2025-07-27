@@ -20,19 +20,17 @@ const adminNavItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   
-  // A simple way to check if we think an agent is logged in.
-  // In a real app, you might use a client-side hook that checks session state.
-  const isLoggedIn = !pathname.startsWith('/login');
+  const isLoggedIn = false;
 
 
   // Don't render sidebar on login pages
-  if (pathname === '/admin/login' || pathname === '/login') {
+  if (pathname === '/admin/login' || pathname === '/login' || pathname === '/register') {
     return null;
   }
 
   const isAdmin = pathname.startsWith('/admin');
   const homeLink = isAdmin ? '/admin' : '/';
-  const navItems = isAdmin ? adminNavItems : agentNavItems.filter(item => !item.protected || isLoggedIn);
+  const navItems = isAdmin ? adminNavItems : agentNavItems;
 
 
   return (

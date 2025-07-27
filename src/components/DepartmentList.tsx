@@ -2,7 +2,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getDepartments } from '@/lib/data';
 import type { Department } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -13,13 +12,9 @@ export default function DepartmentList() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchDepartments = async () => {
-      setIsLoading(true);
-      const fetchedDepartments = await getDepartments();
-      setDepartments(fetchedDepartments);
-      setIsLoading(false);
-    };
-    fetchDepartments();
+    // In a static export, we can't fetch data.
+    // We'll just show an empty state.
+    setIsLoading(false);
   }, []);
 
   return (

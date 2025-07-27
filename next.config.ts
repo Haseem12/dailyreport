@@ -1,7 +1,7 @@
-import type {NextConfig} from 'next';
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: 'export', // Enable static export for cPanel compatibility
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
+    unoptimized: true, // Required for static hosting (disables Next.js image optimization)
     remotePatterns: [
       {
         protocol: 'https',

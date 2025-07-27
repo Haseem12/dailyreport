@@ -2,7 +2,6 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { getReports } from '@/lib/data';
 import type { StockReport } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -30,7 +29,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, File, ListFilter } from 'lucide-react';
-import AnomalyDetector from './AnomalyDetector';
 import StockReportDetailsDialog from './StockReportDetailsDialog';
 import { Skeleton } from './ui/skeleton';
 
@@ -42,31 +40,9 @@ export default function StockReportDashboard() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   useEffect(() => {
-    const fetchReports = async () => {
-      try {
-        const fetchedReports = await getReports();
-        const processedReports = fetchedReports.map(report => {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            let overallCondition: 'Good' | 'Damaged' | 'Expired' = 'Good';
-            if (report.productss?.some(p => p.productCondition === 'Damaged')) {
-                overallCondition = 'Damaged';
-            }
-            if (report.productss?.some(p => new Date(p.expiryDate) < today)) {
-                overallCondition = 'Expired';
-            }
-
-            return { ...report, productCondition: overallCondition };
-        });
-        setReports(processedReports);
-      } catch (error) {
-        console.error("Failed to fetch reports:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchReports();
+    // In a static build, we can't fetch data.
+    // We'll just show an empty state.
+    setIsLoading(false);
   }, []);
 
   const handleViewDetails = (report: StockReport) => {
@@ -121,7 +97,6 @@ export default function StockReportDashboard() {
                       Export
                     </span>
                   </Button>
-                  <AnomalyDetector reports={filteredReports} />
               </div>
             </div>
             <div className="pt-4">
@@ -155,7 +130,7 @@ export default function StockReportDashboard() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {filteredReports.map((report) => (
+                    {filteredReports.length > 0 ? filteredReports.map((report) => (
                     <TableRow key={report.id}>
                         <TableCell>
                         <div className="font-medium">{report.customerName}</div>
@@ -195,7 +170,13 @@ export default function StockReportDashboard() {
                         </DropdownMenu>
                         </TableCell>
                     </TableRow>
-                    ))}
+                    )) : (
+                        <TableRow>
+                            <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                                No reports found. Data fetching is disabled for static export.
+                            </TableCell>
+                        </TableRow>
+                    )}
                 </TableBody>
                 </Table>
             )}

@@ -1,19 +1,6 @@
 
 "use client";
 
-import { useFieldArray, useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -28,133 +15,93 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { submitStockReport } from '@/app/entry/actions';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useState } from 'react';
 
-const productSchema = z.object({
-  productName: z.string().min(1, 'Product name is required'),
-  quantityRemaining: z.coerce.number().min(0, 'Quantity must be 0 or more'),
-  batchNumber: z.string().min(1, 'Batch number is required'),
-  supplyDate: z.date({ required_error: 'Supply date is required' }),
-  expiryDate: z.date({ required_error: 'Expiry date is required' }),
-  productCondition: z.enum(['Good', 'Damaged', 'Expired']),
-});
-
-const formSchema = z.object({
-  salesAgentName: z.string().min(1, 'Sales agent name is required'),
-  customerName: z.string().min(1, 'Customer name is required'),
-  customerAddress: z.string().min(1, 'Customer address is required'),
-  dateOfVisit: z.date({ required_error: 'Date of visit is required' }),
-  outstandingBalance: z.coerce.number().min(0, 'Balance must be 0 or more'),
-  products: z.array(productSchema).min(1, 'At least one product is required'),
-});
-
-export type StockEntryFormValues = z.infer<typeof formSchema>;
-
+// Define a type for a single product in the form
+type ProductForm = {
+  id: number;
+  productName: string;
+  quantityRemaining: number;
+  batchNumber: string;
+  supplyDate?: Date;
+  expiryDate?: Date;
+  productCondition: 'Good' | 'Damaged' | 'Expired';
+};
 
 export default function StockEntryForm() {
   const { toast } = useToast();
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      salesAgentName: '',
-      customerName: '',
-      customerAddress: '',
-      outstandingBalance: 0,
-      products: [
-        {
-          productName: '',
-          quantityRemaining: 0,
-          batchNumber: '',
-          productCondition: 'Good',
-        },
-      ],
-    },
-  });
+  const [products, setProducts] = useState<ProductForm[]>([
+    { id: 1, productName: '', quantityRemaining: 0, batchNumber: '', productCondition: 'Good' },
+  ]);
 
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: 'products',
-  });
+  const addProduct = () => {
+    setProducts([
+      ...products,
+      { id: Date.now(), productName: '', quantityRemaining: 0, batchNumber: '', productCondition: 'Good' },
+    ]);
+  };
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const removeProduct = (id: number) => {
+    setProducts(products.filter((p) => p.id !== id));
+  };
+
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     try {
-        await submitStockReport(values);
+        // Since we are in a static build, we can't submit the form.
+        // We will just show a toast notification.
         toast({
-        title: 'Report Submitted!',
-        description: 'The stock report has been successfully submitted.',
-        });
-        form.reset();
-    } catch (error) {
-        console.error("Report submission failed: ", error);
-        toast({
+            title: 'Form Submission Disabled',
+            description: 'This form cannot be submitted in a static build. Please re-enable server components.',
             variant: 'destructive',
-            title: 'Submission Failed',
-            description: 'Could not submit the report. Please try again.',
         });
+    } catch (error) {
+        console.error("This should not happen in static build: ", error);
     }
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={onSubmit} className="space-y-8">
         <Card>
           <CardHeader>
             <CardTitle>Visit & Customer Details</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
-                <FormField name="salesAgentName" control={form.control} render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Sales Agent Name</FormLabel>
-                      <FormControl><Input placeholder="e.g., John Doe" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField name="customerName" control={form.control} render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Customer Name</FormLabel>
-                      <FormControl><Input placeholder="e.g., Shoprite Lekki" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <FormField name="customerAddress" control={form.control} render={({ field }) => (
-                    <FormItem className="md:col-span-2">
-                      <FormLabel>Customer Address</FormLabel>
-                      <FormControl><Input placeholder="e.g., 123 Admiralty Way" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField name="dateOfVisit" control={form.control} render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Date of Visit</FormLabel>
-                      <Popover>
+                <div className="space-y-2">
+                    <Label>Sales Agent Name</Label>
+                    <Input placeholder="e.g., John Doe" />
+                </div>
+                <div className="space-y-2">
+                    <Label>Customer Name</Label>
+                    <Input placeholder="e.g., Shoprite Lekki" />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                    <Label>Customer Address</Label>
+                    <Input placeholder="e.g., 123 Admiralty Way" />
+                </div>
+                <div className="flex flex-col space-y-2">
+                    <Label>Date of Visit</Label>
+                    <Popover>
                         <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button variant="outline" className={cn('pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
-                              {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            <Button variant="outline" className={cn('pl-3 text-left font-normal', 'text-muted-foreground')}>
+                                <span>Pick a date</span>
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
-                          </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                            <Calendar mode="single" initialFocus />
                         </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField name="outstandingBalance" control={form.control} render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Outstanding Balance (₦)</FormLabel>
-                      <FormControl><Input type="number" placeholder="e.g., 50000" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                    </Popover>
+                </div>
+                <div className="space-y-2">
+                    <Label>Outstanding Balance (₦)</Label>
+                    <Input type="number" placeholder="e.g., 50000" />
+                </div>
             </div>
           </CardContent>
         </Card>
@@ -163,19 +110,19 @@ export default function StockEntryForm() {
            <CardHeader>
              <div className="flex justify-between items-center">
                 <CardTitle>Product Details</CardTitle>
-                <Button type="button" variant="outline" size="sm" onClick={() => append({ productName: '', quantityRemaining: 0, batchNumber: '', productCondition: 'Good', supplyDate: new Date(), expiryDate: new Date() })}>
+                <Button type="button" variant="outline" size="sm" onClick={addProduct}>
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Product
                 </Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-4 overflow-x-auto">
             <div className="space-y-4">
-                {fields.map((field, index) => (
+                {products.map((field, index) => (
                     <div key={field.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start border p-4 rounded-lg relative">
-                        <FormField control={form.control} name={`products.${index}.productName`} render={({ field }) => (
-                            <FormItem className="md:col-span-2"><FormLabel>Product</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="Select Product" /></SelectTrigger></FormControl>
+                        <div className="md:col-span-2 space-y-2">
+                            <Label>Product</Label>
+                            <Select>
+                                <SelectTrigger><SelectValue placeholder="Select Product" /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="1.2L (BOTTLE/JERRYCAN): Plain">1.2L (BOTTLE/JERRYCAN): Plain</SelectItem>
                                     <SelectItem value="2.LT (BOTTLE/JERRYCAN): Plain">2.LT (BOTTLE/JERRYCAN): Plain</SelectItem>
@@ -210,64 +157,48 @@ export default function StockEntryForm() {
                                     <SelectItem value="BE:">BE:</SelectItem>
                                 </SelectContent>
                             </Select>
-                            <FormMessage /></FormItem>
-                        )}/>
-                        <FormField control={form.control} name={`products.${index}.quantityRemaining`} render={({ field }) => (
-                            <FormItem className="md:col-span-1"><FormLabel>Qty</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
-                        )}/>
-                        <FormField control={form.control} name={`products.${index}.batchNumber`} render={({ field }) => (
-                            <FormItem className="md:col-span-2"><FormLabel>Batch No.</FormLabel><FormControl><Input {...field} placeholder="Batch Number"/></FormControl><FormMessage /></FormItem>
-                        )}/>
-                         <FormField name={`products.${index}.supplyDate`} control={form.control} render={({ field }) => (
-                            <FormItem className="flex flex-col md:col-span-2"><FormLabel>Supply Date</FormLabel>
+                        </div>
+                        <div className="md:col-span-1 space-y-2"><Label>Qty</Label><Input type="number" /></div>
+                        <div className="md:col-span-2 space-y-2"><Label>Batch No.</Label><Input placeholder="Batch Number"/></div>
+                        <div className="flex flex-col md:col-span-2 space-y-2"><Label>Supply Date</Label>
                             <Popover>
                                 <PopoverTrigger asChild>
-                                <FormControl>
-                                    <Button variant="outline" className={cn('pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                    {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    <Button variant="outline" className={cn('pl-3 text-left font-normal', 'text-muted-foreground')}>
+                                        <span>Pick a date</span>
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                     </Button>
-                                </FormControl>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar mode="single" selected={field.value} onSelect={field.onChange} disabled={(date) => date > new Date() || date < new Date('1900-01-01')} initialFocus />
+                                <Calendar mode="single" disabled={(date) => date > new Date() || date < new Date('1900-01-01')} initialFocus />
                                 </PopoverContent>
                             </Popover>
-                            <FormMessage />
-                            </FormItem>
-                        )} />
-                        <FormField name={`products.${index}.expiryDate`} control={form.control} render={({ field }) => (
-                            <FormItem className="flex flex-col md:col-span-2"><FormLabel>Expiry Date</FormLabel>
+                        </div>
+                        <div className="flex flex-col md:col-span-2 space-y-2"><Label>Expiry Date</Label>
                             <Popover>
                                 <PopoverTrigger asChild>
-                                <FormControl>
-                                    <Button variant="outline" className={cn('pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                    {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    <Button variant="outline" className={cn('pl-3 text-left font-normal', 'text-muted-foreground')}>
+                                        <span>Pick a date</span>
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                     </Button>
-                                </FormControl>
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                                    <Calendar mode="single" initialFocus />
                                 </PopoverContent>
                             </Popover>
-                            <FormMessage />
-                            </FormItem>
-                        )} />
-                        <FormField control={form.control} name={`products.${index}.productCondition`} render={({ field }) => (
-                            <FormItem className="md:col-span-2"><FormLabel>Condition</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl><SelectTrigger><SelectValue placeholder="Condition" /></SelectTrigger></FormControl>
+                        </div>
+                        <div className="md:col-span-2 space-y-2">
+                            <Label>Condition</Label>
+                            <Select defaultValue="Good">
+                                <SelectTrigger><SelectValue placeholder="Condition" /></SelectTrigger>
                                 <SelectContent>
-                                <SelectItem value="Good">Good</SelectItem>
-                                <SelectItem value="Damaged">Damaged</SelectItem>
-                                <SelectItem value="Expired">Expired</SelectItem>
+                                    <SelectItem value="Good">Good</SelectItem>
+                                    <SelectItem value="Damaged">Damaged</SelectItem>
+                                    <SelectItem value="Expired">Expired</SelectItem>
                                 </SelectContent>
                             </Select>
-                            <FormMessage /></FormItem>
-                        )}/>
+                        </div>
                         <div className="md:col-span-1 self-center justify-self-end pt-6">
-                            <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                            <Button type="button" variant="ghost" size="icon" onClick={() => removeProduct(field.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                         </div>
                     </div>
                 ))}
@@ -275,10 +206,9 @@ export default function StockEntryForm() {
           </CardContent>
         </Card>
 
-        <Button type="submit" size="lg" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? 'Submitting...' : 'Submit Report'}
+        <Button type="submit" size="lg">
+            Submit Report
         </Button>
       </form>
-    </Form>
   );
 }

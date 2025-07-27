@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Home, Menu, Package2, PlusCircle, UserCog, LogOut, LogIn } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { logoutAgent } from '@/app/login/actions';
-import { logout } from '@/app/admin/login/actions';
+import { useToast } from '@/hooks/use-toast';
+
 
 const agentNavItems = [
   { href: '/', icon: Home, label: 'Dashboard', protected: true },
@@ -21,18 +21,18 @@ const adminNavItems = [
 
 export default function Header({ pageTitle }: { pageTitle: string }) {
   const pathname = usePathname();
+  const { toast } = useToast();
 
-  const handleAgentLogout = async () => {
-    await logoutAgent();
-  };
-  
-  const handleAdminLogout = async () => {
-    await logout();
+  const handleLogout = () => {
+     toast({
+        title: "Logout Clicked",
+        description: "Logout functionality is disabled for static export.",
+    });
   };
 
   const isAdminRoute = pathname.startsWith('/admin');
-  const isLoginPage = pathname === '/login' || pathname.startsWith('/admin/login');
-  const isAgentLoggedIn = !isLoginPage && !isAdminRoute; // Simple check
+  const isLoginPage = pathname === '/login' || pathname.startsWith('/admin/login') || pathname.startsWith('/register');
+  const isAgentLoggedIn = !isLoginPage && !isAdminRoute;
   const isAdminLoggedIn = isAdminRoute;
 
   let navItems;
@@ -42,13 +42,11 @@ export default function Header({ pageTitle }: { pageTitle: string }) {
     navItems = adminNavItems;
     homeLink = '/admin';
   } else {
-    // Show public and protected routes based on login status
-    navItems = agentNavItems.filter(item => !item.protected || isAgentLoggedIn);
+    navItems = agentNavItems;
     homeLink = '/';
   }
 
-  // Don't render header on admin login
-  if (pathname === '/admin/login') {
+  if (pathname === '/admin/login' || pathname === '/register') {
     return null;
   }
 
@@ -83,23 +81,17 @@ export default function Header({ pageTitle }: { pageTitle: string }) {
                   {item.label}
                 </Link>
             ))}
-             {isAgentLoggedIn && (
-              <form action={handleAgentLogout} className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
+             {(isAgentLoggedIn || isAdminLoggedIn) && (
+              <div onClick={handleLogout} className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground cursor-pointer">
                   <LogOut className="h-5 w-5" />
-                  <button type="submit">Logout Agent</button>
-              </form>
+                  <button type="button">Logout</button>
+              </div>
             )}
             {!isAgentLoggedIn && !isAdminRoute && (
                <Link href="/login" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
                   <LogIn className="h-5 w-5" />
                   Agent Login
               </Link>
-            )}
-             {isAdminLoggedIn && (
-                <form action={handleAdminLogout} className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
-                    <LogOut className="h-5 w-5" />
-                    <button type="submit">Logout Admin</button>
-                </form>
             )}
           </nav>
         </SheetContent>
@@ -108,27 +100,25 @@ export default function Header({ pageTitle }: { pageTitle: string }) {
          <h1 className="text-lg font-semibold md:text-2xl">{pageTitle}</h1>
       </div>
       <div className="hidden sm:flex items-center gap-2">
-        {isAgentLoggedIn && (
-          <form action={handleAgentLogout}>
-            <Button variant="outline" size="sm">
+        {(isAgentLoggedIn || isAdminLoggedIn) && (
+            <Button variant="outline" size="sm" onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               Logout
             </Button>
-          </form>
-        )}
-         {isAdminLoggedIn && (
-            <form action={handleAdminLogout}>
-                <Button variant="outline" size="sm">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout Admin
-                </Button>
-            </form>
         )}
         {!isAgentLoggedIn && !isAdminRoute && (
              <Button asChild size="sm" variant="outline">
                 <Link href="/login">
                   <LogIn className="mr-2 h-4 w-4" />
                   Agent Login
+                </Link>
+            </Button>
+        )}
+         {!isAdminLoggedIn && isAdminRoute && (
+             <Button asChild size="sm" variant="outline">
+                <Link href="/admin/login">
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Admin Login
                 </Link>
             </Button>
         )}

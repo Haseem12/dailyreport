@@ -1,30 +1,26 @@
 
 "use client";
 
-import { useActionState } from 'react';
-import { registerDepartmentAction, type RegisterAdminFormState } from '@/app/register/actions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
-import { useFormStatus } from 'react-dom';
-
-function SubmitButton() {
-    const { pending } = useFormStatus();
-    return (
-        <Button type="submit" className="w-full" disabled={pending}>
-          {pending ? 'Registering...' : 'Register Department'}
-        </Button>
-    )
-}
+import { useState } from 'react';
 
 export default function RegisterAdminForm() {
-  const initialState: RegisterAdminFormState = { message: "", success: false };
-  const [state, formAction] = useActionState(registerDepartmentAction, initialState);
+  const [state, setState] = useState<{ message: string; success: boolean }>({ message: "", success: false });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setState({
+        message: "This form is disabled for static export. Please re-enable server components for this feature.",
+        success: false,
+    });
+  };
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="departmentName">Department Name</Label>
@@ -68,7 +64,9 @@ export default function RegisterAdminForm() {
         </Alert>
       )}
 
-      <SubmitButton />
+      <Button type="submit" className="w-full">
+          Register Department
+      </Button>
     </form>
   );
 }

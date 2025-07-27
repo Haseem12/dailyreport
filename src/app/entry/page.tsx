@@ -1,3 +1,4 @@
+
 import AppLayout from '@/components/AppLayout';
 import StockEntryForm from '@/components/StockEntryForm';
 import {

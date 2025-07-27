@@ -1,19 +1,23 @@
 
 'use client';
 
-import { useActionState } from 'react';
-import { login } from '@/app/admin/login/actions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
+import { useState } from 'react';
 
 export default function AdminLoginForm() {
-  const [state, formAction] = useActionState(login, undefined);
+  const [error, setError] = useState<string | undefined>();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("This form is disabled for static export. Please re-enable server components for this feature.");
+  };
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Department Email</Label>
@@ -39,11 +43,11 @@ export default function AdminLoginForm() {
         </div>
       </div>
 
-      {state?.error && (
+      {error && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Login Failed</AlertTitle>
-          <AlertDescription>{state.error}</AlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 

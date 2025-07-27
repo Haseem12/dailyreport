@@ -1,34 +1,22 @@
 
 "use client";
 
-import { useActionState } from 'react';
-import { loginAgentAction } from '@/app/login/actions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { AlertCircle } from 'lucide-react';
-
-const formSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
-});
+import { useState } from 'react';
 
 export default function LoginAgentForm() {
-  const [state, formAction] = useActionState(loginAgentAction, undefined);
+  const [error, setError] = useState<string | undefined>();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
-  });
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("This form is disabled for static export. Please re-enable server components for this feature.");
+  };
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
         <div>
           <label htmlFor="email" className="block text-sm font-medium">
@@ -61,11 +49,11 @@ export default function LoginAgentForm() {
         </div>
       </div>
 
-      {state?.error && (
+      {error && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Login Failed</AlertTitle>
-          <AlertDescription>{state.error}</AlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
