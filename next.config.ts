@@ -1,7 +1,10 @@
+
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   output: 'export', // Enable static export for cPanel compatibility
+  assetPrefix: './', // Ensure relative paths for static assets
+  basePath: '', // Ensure no base path is prepended
   typescript: {
     ignoreBuildErrors: true,
   },
