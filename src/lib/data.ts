@@ -3,7 +3,7 @@
 
 import { Department, AdminUser } from './types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://saj-technologies.onrender.com/api/saj/api.php';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://sajfoods.net/dailyreport/api.php';
 
 async function apiFetch(action: string, data: any) {
     try {
