@@ -17,9 +17,10 @@ export default function DepartmentList() {
       try {
         setIsLoading(true);
         const fetchedDepts = await getDepartments();
-        setDepartments(fetchedDepts);
+        setDepartments(fetchedDepts || []);
       } catch (error) {
         console.error('Failed to fetch departments:', error);
+        setDepartments([]);
       } finally {
         setIsLoading(false);
       }
