@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import type { AdminUser } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { getAgents } from '@/lib/data';
+import { getAgents } from '@/app/admin/actions';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AgentList() {
