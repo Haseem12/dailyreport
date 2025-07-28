@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import type { AdminUser } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { getAgents } from '@/app/admin/actions';
+import { getAgents } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AgentList() {
@@ -17,9 +17,10 @@ export default function AgentList() {
       try {
         setIsLoading(true);
         const fetchedAgents = await getAgents();
-        setAgents(fetchedAgents);
+        setAgents(fetchedAgents || []);
       } catch (error) {
         console.error('Failed to fetch agents:', error);
+        setAgents([]);
       } finally {
         setIsLoading(false);
       }
