@@ -8,7 +8,7 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow access to public pages
-  const publicPaths = ['/admin/login', '/register', '/login'];
+  const publicPaths = ['/admin/login', '/register', '/login', '/entry'];
   if (publicPaths.some(path => pathname.startsWith(path))) {
     return NextResponse.next();
   }
