@@ -15,14 +15,18 @@ async function apiFetch(action: string, data?: any) {
         if (!response.ok) {
             const errorText = await response.text();
             console.error(`API Error Response: ${errorText}`);
-            return { success: false, message: `Server error: ${response.status}` };
+            return { success: false, message: `Server error: ${response.status} - ${errorText}` };
         }
         
-        return await response.json();
+        const result = await response.json();
+        return result;
 
     } catch (error) {
         console.error(`Fetch API Error for action "${action}":`, error);
-        return { success: false, message: 'Failed to connect to the server.' };
+        if (error instanceof Error) {
+            return { success: false, message: `Failed to connect to the server: ${error.message}` };
+        }
+        return { success: false, message: 'Failed to connect to the server due to an unknown error.' };
     }
 }
 
