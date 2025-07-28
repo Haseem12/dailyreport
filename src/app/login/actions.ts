@@ -4,7 +4,6 @@
 import { z } from 'zod';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { loginAgentApi } from '@/lib/data';
 
 const schema = z.object({
   email: z.string().email(),
@@ -18,7 +17,33 @@ export async function loginAgent(formData: unknown) {
         return { success: false, error: 'Invalid data provided.' };
     }
 
-    const result = await loginAgentApi(validatedFields.data);
+    const { email, password } = validatedFields.data;
+    
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://sajfoods.net/dailyreport/api.php';
+    let result;
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                action: 'login_agent', 
+                data: { email, password }
+            }),
+            cache: 'no-store',
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`API Error Response: ${errorText}`);
+            return { success: false, error: `Server error: ${response.status}` };
+        }
+        
+        result = await response.json();
+
+    } catch (error) {
+        console.error('Fetch API Error:', error);
+        return { success: false, error: 'Failed to connect to the server.' };
+    }
 
     if (result.success) {
         const user = result.user;

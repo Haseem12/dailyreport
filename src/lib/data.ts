@@ -1,11 +1,10 @@
 
 'use server';
 
-import { Department, AdminUser } from './types';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://sajfoods.net/dailyreport/api.php';
-
-async function apiFetch(action: string, data: any) {
+// This function is kept for potential use in GET requests, 
+// but is not actively used by login/registration anymore.
+async function apiFetch(action: string, data?: any) {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://sajfoods.net/dailyreport/api.php';
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -29,41 +28,19 @@ async function apiFetch(action: string, data: any) {
 }
 
 
-// Department / Admin related functions
-export async function loginAdmin(credentials: Omit<AdminUser, 'id'>) {
-    return apiFetch('login_department', credentials);
-}
-
-export async function addDepartment(departmentData: Omit<Department, 'id'>) {
-    return apiFetch('add_department', departmentData);
-}
+// --- Data Fetching Functions ---
 
 export async function getDepartments() {
-    const result = await apiFetch('get_departments', {});
+    const result = await apiFetch('get_departments');
     return result.success ? result.departments : [];
 }
 
-// Agent related functions
-export async function addAgent(agentData: Omit<AdminUser, 'id'>) {
-    return apiFetch('add_agent', agentData);
-}
-
 export async function getAgents() {
-    const result = await apiFetch('get_agents', {});
+    const result = await apiFetch('get_agents');
     return result.success ? result.agents : [];
 }
 
-export async function loginAgentApi(credentials: Omit<AdminUser, 'id'>) {
-    return apiFetch('login_agent', credentials);
-}
-
-
-// Stock Report functions
-export async function addStockReport(reportData: any) {
-    return apiFetch('add_stock_report', reportData);
-}
-
 export async function getStockReports() {
-    const result = await apiFetch('get_stock_reports', {});
+    const result = await apiFetch('get_stock_reports');
     return result.success ? result.reports : [];
 }
