@@ -14,8 +14,14 @@ async function apiFetch(action: string, data?: any) {
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error(`API Error Response: ${errorText}`);
-            return { success: false, message: `Server error: ${response.status} - ${errorText}` };
+            console.error(`API Error Response (${response.status}): ${errorText}`);
+            // Attempt to parse error, but fallback to text if not JSON
+            try {
+                const errorJson = JSON.parse(errorText);
+                return { success: false, error: errorJson.error || `Server error: ${response.status}` };
+            } catch (e) {
+                return { success: false, error: `Server error: ${response.status} - ${errorText}` };
+            }
         }
         
         const result = await response.json();
@@ -24,9 +30,9 @@ async function apiFetch(action: string, data?: any) {
     } catch (error) {
         console.error(`Fetch API Error for action "${action}":`, error);
         if (error instanceof Error) {
-            return { success: false, message: `Failed to connect to the server: ${error.message}` };
+            return { success: false, error: `Failed to connect to the server: ${error.message}` };
         }
-        return { success: false, message: 'Failed to connect to the server due to an unknown error.' };
+        return { success: false, error: 'An unknown error occurred while connecting to the server.' };
     }
 }
 
@@ -64,6 +70,8 @@ export async function getStockReports() {
     const result = await apiFetch('get_stock_reports');
     return result.success ? result.reports : [];
 }
+
+// --- REPORTING FUNCTIONS ---
 
 export async function addStockReport(reportData: any) {
     return apiFetch('add_stock_report', reportData);
