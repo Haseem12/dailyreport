@@ -45,9 +45,10 @@ export default function StockReportDashboard() {
       try {
         setIsLoading(true);
         const fetchedReports = await getStockReports();
-        setReports(fetchedReports);
+        setReports(fetchedReports || []);
       } catch (error) {
         console.error('Failed to fetch reports:', error);
+        setReports([]);
       } finally {
         setIsLoading(false);
       }
