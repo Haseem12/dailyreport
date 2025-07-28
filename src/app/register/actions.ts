@@ -1,0 +1,29 @@
+
+'use server';
+
+import { z } from 'zod';
+import { redirect } from 'next/navigation';
+import { addDepartment } from '@/lib/data';
+
+const schema = z.object({
+  departmentName: z.string().min(1, { message: "Department name is required." }),
+  email: z.string().email({ message: "Invalid email address." }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+});
+
+export async function registerAdmin(formData: unknown) {
+  const validatedFields = schema.safeParse(formData);
+
+  if (!validatedFields.success) {
+    return { success: false, message: "Invalid form data submitted." };
+  }
+  
+  const result = await addDepartment(validatedFields.data);
+
+  if (result.success) {
+    // Optionally redirect to the login page after successful registration
+    redirect('/admin/login');
+  }
+
+  return result;
+}

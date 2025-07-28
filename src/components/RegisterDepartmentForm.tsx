@@ -1,40 +1,100 @@
 
 "use client";
 
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Label } from './ui/label';
+import { registerDepartment } from "@/app/admin/actions";
+
+
+const formSchema = z.object({
+  departmentName: z.string().min(1, "Department name is required"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
 
 export default function RegisterDepartmentForm() {
   const { toast } = useToast();
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      departmentName: "",
+      email: "",
+      password: "",
+    },
+  });
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    toast({
-        variant: 'destructive',
-        title: 'Registration Failed',
-        description: 'This form is disabled for static export. Please re-enable server components.',
-    });
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+        const result = await registerDepartment(values);
+        toast({
+            title: result.success ? 'Department Registered' : 'Registration Failed',
+            description: result.message,
+            variant: result.success ? 'default' : 'destructive',
+        });
+        if (result.success) {
+            form.reset();
+        }
+    } catch (error) {
+        toast({
+            title: 'An Error Occurred',
+            description: 'Failed to register the department. Please try again.',
+            variant: 'destructive',
+        });
+    }
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
-        <div className="space-y-2">
-            <Label>Department Name</Label>
-            <Input placeholder="e.g., Marketing" />
-        </div>
-        <div className="space-y-2">
-            <Label>Department Email</Label>
-            <Input type="email" placeholder="department@example.com" />
-        </div>
-        <div className="space-y-2">
-            <Label>Password</Label>
-            <Input type="password" placeholder="Create a password" />
-        </div>
-        <Button type="submit" className="w-full">
-            Register Department
-        </Button>
-    </form>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="departmentName"
+            render={({ field }) => (
+              <FormItem>
+                  <FormLabel>Department Name</FormLabel>
+                   <FormControl>
+                      <Input placeholder="e.g., Marketing" {...field} />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                  <FormLabel>Department Email</FormLabel>
+                   <FormControl>
+                      <Input type="email" placeholder="department@example.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                  <FormLabel>Password</FormLabel>
+                   <FormControl>
+                      <Input type="password" placeholder="Create a password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? 'Registering...' : 'Register Department'}
+          </Button>
+      </form>
+    </Form>
   );
 }

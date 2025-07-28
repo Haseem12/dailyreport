@@ -1,61 +1,90 @@
 
 'use client';
 
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { AlertCircle } from 'lucide-react';
-import { Label } from '@/components/ui/label';
+import { login } from '@/app/admin/login/actions';
 import { useState } from 'react';
+
+const formSchema = z.object({
+  email: z.string().email({ message: 'Invalid email address.' }),
+  password: z.string().min(1, { message: 'Password is required.' }),
+});
 
 export default function AdminLoginForm() {
   const [error, setError] = useState<string | undefined>();
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("This form is disabled for static export. Please re-enable server components for this feature.");
-  };
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setError(undefined);
+    try {
+      const result = await login(values);
+      if (!result.success) {
+        setError(result.error);
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+    }
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">Department Email</Label>
-          <Input
-            id="email"
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
             name="email"
-            type="email"
-            autoComplete="email"
-            required
-            placeholder="department@example.com"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Department Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="department@example.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div className="space-y-2">
-           <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
+          <FormField
+            control={form.control}
             name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            placeholder="••••••••"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="••••••••" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </div>
-      </div>
 
-      {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Login Failed</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Login Failed</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
-      <div>
-        <Button type="submit" className="w-full">
-          Sign in
-        </Button>
-      </div>
-    </form>
+        <div>
+          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? 'Signing in...' : 'Sign in'}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }

@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, File, ListFilter } from 'lucide-react';
 import StockReportDetailsDialog from './StockReportDetailsDialog';
+import { getStockReports } from '@/app/admin/actions';
 import { Skeleton } from './ui/skeleton';
 
 export default function StockReportDashboard() {
@@ -40,9 +41,18 @@ export default function StockReportDashboard() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   useEffect(() => {
-    // In a static build, we can't fetch data.
-    // We'll just show an empty state.
-    setIsLoading(false);
+    const fetchReports = async () => {
+      try {
+        setIsLoading(true);
+        const fetchedReports = await getStockReports();
+        setReports(fetchedReports);
+      } catch (error) {
+        console.error('Failed to fetch reports:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchReports();
   }, []);
 
   const handleViewDetails = (report: StockReport) => {
@@ -56,11 +66,31 @@ export default function StockReportDashboard() {
       report.salesAgentName.toLowerCase().includes(filter.toLowerCase())
   );
 
-  const getBadgeVariant = (condition?: 'Good' | 'Damaged' | 'Expired') => {
-    if (condition === 'Damaged' || condition === 'Expired') {
+  const getBadgeVariant = (report: StockReport) => {
+    const hasDamaged = report.productss.some(p => p.productCondition === 'Damaged');
+    const hasExpired = report.productss.some(p => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return new Date(p.expiryDate) < today;
+    });
+
+    if (hasDamaged || hasExpired) {
         return 'destructive';
     }
     return 'secondary';
+  }
+
+  const getOverallCondition = (report: StockReport) => {
+    const hasDamaged = report.productss.some(p => p.productCondition === 'Damaged');
+    const hasExpired = report.productss.some(p => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return new Date(p.expiryDate) < today;
+    });
+
+    if (hasDamaged) return 'Damaged';
+    if (hasExpired) return 'Expired';
+    return 'Good';
   }
 
   return (
@@ -121,7 +151,7 @@ export default function StockReportDashboard() {
                     <TableRow>
                     <TableHead>Customer</TableHead>
                     <TableHead className="hidden md:table-cell">Agent</TableHead>
-                    <TableHead className="hidden md:table-cell">Condition</TableHead>
+                    <TableHead className="hidden md:table-cell">Overall Condition</TableHead>
                     <TableHead>Visit Date</TableHead>
                     <TableHead className="text-right">Balance (₦)</TableHead>
                     <TableHead>
@@ -140,8 +170,8 @@ export default function StockReportDashboard() {
                         </TableCell>
                         <TableCell className="hidden md:table-cell">{report.salesAgentName}</TableCell>
                         <TableCell className="hidden md:table-cell">
-                        <Badge variant={getBadgeVariant(report.productCondition)}>
-                            {report.productCondition}
+                        <Badge variant={getBadgeVariant(report)}>
+                            {getOverallCondition(report)}
                         </Badge>
                         </TableCell>
                         <TableCell>
@@ -173,7 +203,7 @@ export default function StockReportDashboard() {
                     )) : (
                         <TableRow>
                             <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                                No reports found. Data fetching is disabled for static export.
+                                No reports found.
                             </TableCell>
                         </TableRow>
                     )}

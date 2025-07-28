@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import type { AdminUser } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { getAgents } from '@/app/admin/actions';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AgentList() {
@@ -12,9 +13,18 @@ export default function AgentList() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // In a static export, we can't fetch data.
-    // We'll just show an empty state.
-    setIsLoading(false);
+    const fetchAgents = async () => {
+      try {
+        setIsLoading(true);
+        const fetchedAgents = await getAgents();
+        setAgents(fetchedAgents);
+      } catch (error) {
+        console.error('Failed to fetch agents:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchAgents();
   }, []);
 
   return (

@@ -1,72 +1,100 @@
 
 "use client";
 
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { AlertCircle } from 'lucide-react';
-import { Label } from '@/components/ui/label';
+import { registerAdmin } from '@/app/register/actions';
 import { useState } from 'react';
+
+const formSchema = z.object({
+  departmentName: z.string().min(1, { message: "Department name is required." }),
+  email: z.string().email({ message: "Invalid email address." }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+});
 
 export default function RegisterAdminForm() {
   const [state, setState] = useState<{ message: string; success: boolean }>({ message: "", success: false });
+  
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      departmentName: "",
+      email: "",
+      password: "",
+    },
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setState({
-        message: "This form is disabled for static export. Please re-enable server components for this feature.",
-        success: false,
-    });
-  };
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const result = await registerAdmin(values);
+    setState(result);
+    if(result.success) {
+        form.reset();
+    }
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="departmentName">Department Name</Label>
-          <Input
-            id="departmentName"
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
             name="departmentName"
-            type="text"
-            required
-            placeholder="e.g., Marketing"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Department Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Marketing" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">Department Email</Label>
-          <Input
-            id="email"
+          <FormField
+            control={form.control}
             name="email"
-            type="email"
-            autoComplete="email"
-            required
-            placeholder="department@example.com"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Department Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="department@example.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div className="space-y-2">
-           <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
+          <FormField
+            control={form.control}
             name="password"
-            type="password"
-            autoComplete="new-password"
-            required
-            placeholder="••••••••"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <FormControl>
+                  <Input type="password" placeholder="••••••••" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </div>
-      </div>
 
-      {!state.success && state.message && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Registration Failed</AlertTitle>
-          <AlertDescription>{state.message}</AlertDescription>
-        </Alert>
-      )}
+        {state.message && (
+          <Alert variant={state.success ? "default" : "destructive"}>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>{state.success ? 'Success' : 'Registration Failed'}</AlertTitle>
+            <AlertDescription>{state.message}</AlertDescription>
+          </Alert>
+        )}
 
-      <Button type="submit" className="w-full">
-          Register Department
-      </Button>
-    </form>
+        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? 'Registering...' : 'Register Department'}
+        </Button>
+      </form>
+    </Form>
   );
 }

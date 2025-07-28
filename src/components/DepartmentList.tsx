@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import type { Department } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { getDepartments } from '@/app/admin/actions';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function DepartmentList() {
@@ -12,9 +13,18 @@ export default function DepartmentList() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // In a static export, we can't fetch data.
-    // We'll just show an empty state.
-    setIsLoading(false);
+    const fetchDepartments = async () => {
+      try {
+        setIsLoading(true);
+        const fetchedDepts = await getDepartments();
+        setDepartments(fetchedDepts);
+      } catch (error) {
+        console.error('Failed to fetch departments:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchDepartments();
   }, []);
 
   return (
