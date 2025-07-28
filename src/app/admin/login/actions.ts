@@ -4,7 +4,6 @@
 import { z } from 'zod';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { loginAdmin } from '@/lib/data';
 
 const schema = z.object({
   email: z.string().email(),
@@ -20,8 +19,7 @@ export async function login(formData: unknown) {
 
     const { email, password } = validatedFields.data;
     
-    // This is where the direct fetch happens now
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://saj-technologies.onrender.com/api/saj/api.php';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://sajfoods.net/dailyreport/api.php';
     let result;
     try {
         const response = await fetch(API_URL, {
@@ -29,7 +27,7 @@ export async function login(formData: unknown) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 action: 'login_department', 
-                data: { email, password } // Correctly nested data
+                data: { email, password }
             }),
             cache: 'no-store',
         });
