@@ -8,14 +8,13 @@ import StockReportDashboard from '@/components/StockReportDashboard';
 import RegisterDepartmentForm from '@/components/RegisterDepartmentForm';
 import AgentList from '@/components/AgentList';
 import DepartmentList from '@/components/DepartmentList';
-import { Separator } from '@/components/ui/separator';
-import { Users, Building, FileText, Activity, DollarSign } from 'lucide-react';
+import { Users, Building, FileText, Activity } from 'lucide-react';
 
 
 export default function AdminPage() {
   return (
     <AdminLayout pageTitle="Admin Dashboard">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium">Total Reports</CardTitle>
@@ -63,10 +62,10 @@ export default function AdminPage() {
               <TabsTrigger value="agents">Manage Agents</TabsTrigger>
               <TabsTrigger value="departments">Manage Departments</TabsTrigger>
             </TabsList>
-          <TabsContent value="reports" className="mt-6">
+          <TabsContent value="reports" className="mt-4">
             <StockReportDashboard />
           </TabsContent>
-          <TabsContent value="agents" className="mt-6">
+          <TabsContent value="agents" className="mt-4">
             <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-6">
                   <AgentList />
@@ -84,7 +83,7 @@ export default function AdminPage() {
                 </Card>
             </div>
           </TabsContent>
-           <TabsContent value="departments" className="mt-6">
+           <TabsContent value="departments" className="mt-4">
              <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-6">
                     <DepartmentList />

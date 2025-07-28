@@ -4,10 +4,10 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { loginAgent } from "@/app/login/actions";
+import { login } from "@/app/login/actions";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormMessage, FormLabel } from '@/components/ui/form';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { useState } from 'react';
@@ -34,7 +34,7 @@ export default function LoginAgentForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setError(undefined);
     try {
-        const result = await loginAgent(values);
+        const result = await login(values, 'agent');
         if (!result.success) {
             setError(result.error);
         }
@@ -52,9 +52,7 @@ export default function LoginAgentForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <label htmlFor="email" className="block text-sm font-medium">
-                  Email Address
-                </label>
+                <FormLabel>Email Address</FormLabel>
                 <FormControl>
                   <Input placeholder="agent@example.com" {...field} />
                 </FormControl>
@@ -67,12 +65,7 @@ export default function LoginAgentForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium"
-                >
-                  Password
-                </label>
+                <FormLabel>Password</FormLabel>
                 <FormControl>
                   <Input type="password" placeholder="••••••••" {...field} />
                 </FormControl>

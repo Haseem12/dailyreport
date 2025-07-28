@@ -7,20 +7,27 @@ export function middleware(request: NextRequest) {
   const agentSession = request.cookies.get('agent_session');
   const { pathname } = request.nextUrl;
 
-  // Allow access to public pages
-  const publicPaths = ['/admin/login', '/register', '/login', '/entry'];
-  if (publicPaths.some(path => pathname.startsWith(path))) {
+  const isPublicPath = pathname === '/login' || pathname === '/register';
+
+  // If trying to access a public page, let them through.
+  if(isPublicPath) {
+    // If user is already logged in, redirect to their respective dashboard
+    if (agentSession) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+    if (adminSession) {
+      return NextResponse.redirect(new URL('/admin', request.url));
+    }
     return NextResponse.next();
   }
 
-  // Redirect to admin login if trying to access admin pages without session
+  // Protect admin routes
   if (pathname.startsWith('/admin') && !adminSession) {
-    return NextResponse.redirect(new URL('/admin/login', request.url));
+    return NextResponse.redirect(new URL('/login', request.url));
   }
   
-  // For non-admin pages, check for agent session
-  if (!pathname.startsWith('/admin') && !agentSession) {
-     // You might want to redirect to an agent login page, e.g., /login
+  // Protect agent routes
+  if (!pathname.startsWith('/admin') && !isPublicPath && !agentSession) {
      return NextResponse.redirect(new URL('/login', request.url));
   }
  
@@ -35,7 +42,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - The entry page, which should be public
      */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|entry).*)',
   ],
 }

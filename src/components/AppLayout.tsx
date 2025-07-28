@@ -13,11 +13,13 @@ export default function AppLayout({
   pageTitle: string;
 }) {
   return (
-    <div className="flex min-h-screen w-full flex-col bg-muted/40 sm:flex-row">
+    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <Sidebar />
-      <div className="flex flex-col flex-1 sm:pl-14">
+      <div className="flex flex-col">
         <Header pageTitle={pageTitle} />
-        <main className="flex-1 gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 md:p-6">{children}</main>
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-muted/20">
+          {children}
+        </main>
       </div>
     </div>
   );

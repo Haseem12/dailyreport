@@ -9,8 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { AlertCircle } from 'lucide-react';
-import { registerAdmin } from '@/app/register/actions';
-import { useState } from 'react';
+import { register } from '@/app/register/actions';
+import { useState, useTransition } from 'react';
 
 const formSchema = z.object({
   departmentName: z.string().min(1, { message: "Department name is required." }),
@@ -19,7 +19,9 @@ const formSchema = z.object({
 });
 
 export default function RegisterAdminForm() {
-  const [state, setState] = useState<{ message: string; success: boolean }>({ message: "", success: false });
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -31,11 +33,19 @@ export default function RegisterAdminForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const result = await registerAdmin(values);
-    setState(result);
-    if(result.success) {
-        form.reset();
-    }
+    setError(undefined);
+    setSuccess(undefined);
+    
+    startTransition(async () => {
+        const result = await register(values, 'department');
+        if (!result.success) {
+            setError(result.message);
+        } else {
+            // Success will trigger a redirect, but we can set a state just in case.
+            setSuccess(result.message);
+            form.reset();
+        }
+    });
   }
 
   return (
@@ -83,16 +93,24 @@ export default function RegisterAdminForm() {
           />
         </div>
 
-        {state.message && (
-          <Alert variant={state.success ? "default" : "destructive"}>
+        {error && (
+          <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>{state.success ? 'Success' : 'Registration Failed'}</AlertTitle>
-            <AlertDescription>{state.message}</AlertDescription>
+            <AlertTitle>Registration Failed</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+         {success && (
+          <Alert variant="default" className="bg-green-500/10 border-green-500 text-green-700 [&>svg]:text-green-700">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Success</AlertTitle>
+            <AlertDescription>{success}. You will be redirected shortly.</AlertDescription>
           </Alert>
         )}
 
-        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? 'Registering...' : 'Register Department'}
+
+        <Button type="submit" className="w-full" disabled={isPending}>
+          {isPending ? 'Registering...' : 'Register Department'}
         </Button>
       </form>
     </Form>

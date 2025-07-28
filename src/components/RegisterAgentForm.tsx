@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { registerAgent } from "@/app/admin/actions";
+import { register } from "@/app/register/actions";
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -31,7 +31,7 @@ export default function RegisterAgentForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const result = await registerAgent(values);
+      const result = await register(values, 'agent');
        toast({
         title: result.success ? 'Agent Registered' : 'Registration Failed',
         description: result.message,

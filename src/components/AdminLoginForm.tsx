@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { AlertCircle } from 'lucide-react';
-import { login } from '@/app/admin/login/actions';
+import { login } from '@/app/login/actions';
 import { useState } from 'react';
 
 const formSchema = z.object({
@@ -30,7 +30,7 @@ export default function AdminLoginForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setError(undefined);
     try {
-      const result = await login(values);
+      const result = await login(values, 'department');
       if (!result.success) {
         setError(result.error);
       }
