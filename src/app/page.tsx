@@ -1,50 +1,72 @@
-
 'use client';
 
 import AppLayout from '@/components/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FilePlus } from 'lucide-react';
+import { FilePlus, BarChart, Clock } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardPage() {
   return (
     <AppLayout pageTitle="Agent Dashboard">
-      <div className="flex flex-col gap-8">
-        <Card>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Welcome, Sales Agent!</CardTitle>
             <CardDescription>
-              This is your dashboard. You can submit new stock reports for your customer visits here.
+              This is your central hub for managing stock reports.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <p>
-                To get started, please navigate to the "New Report" page to fill out the daily stock check form for your latest customer visit.
+                Ready to file a new report? Click the button below to get started on your latest customer visit.
               </p>
-              <Button asChild>
+              <Button asChild size="lg">
                 <Link href="/entry">
-                  <FilePlus className="mr-2 h-4 w-4" />
+                  <FilePlus className="mr-2" />
                   Submit a New Report
                 </Link>
               </Button>
             </div>
           </CardContent>
         </Card>
-
-        <Card>
-            <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>A summary of your recent report submissions will appear here.</CardDescription>
+        
+        <div className="space-y-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Reports This Month</CardTitle>
+              <BarChart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-                <div className="text-center text-muted-foreground py-8">
-                    <p>No recent reports submitted.</p>
-                </div>
+              <div className="text-2xl font-bold">12</div>
+              <p className="text-xs text-muted-foreground">+5 from last month</p>
             </CardContent>
-        </Card>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Last Report Submitted</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">3 days ago</div>
+               <p className="text-xs text-muted-foreground">at Shoprite Lekki</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
+      
+      <Card className="mt-6">
+          <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>A summary of your recent report submissions will appear here.</CardDescription>
+          </CardHeader>
+          <CardContent>
+              <div className="text-center text-muted-foreground py-12">
+                  <p>No recent reports submitted.</p>
+              </div>
+          </CardContent>
+      </Card>
     </AppLayout>
   );
 }

@@ -1,18 +1,17 @@
-
 "use client";
 
 import Link from 'next/link';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Home, Menu, Package2, PlusCircle, UserCog, LogOut, LogIn } from 'lucide-react';
+import { Home, Menu, Bot, PlusCircle, UserCog, LogOut, LogIn } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 
 const agentNavItems = [
-  { href: '/', icon: Home, label: 'Dashboard', protected: true },
-  { href: '/entry', icon: PlusCircle, label: 'New Report', protected: false },
+  { href: '/', icon: Home, label: 'Dashboard' },
+  { href: '/entry', icon: PlusCircle, label: 'New Report' },
 ];
 
 const adminNavItems = [
@@ -26,27 +25,19 @@ export default function Header({ pageTitle }: { pageTitle: string }) {
   const handleLogout = () => {
      toast({
         title: "Logout Clicked",
-        description: "Logout functionality is disabled for static export.",
+        description: "Logout functionality is disabled.",
     });
   };
 
   const isAdminRoute = pathname.startsWith('/admin');
-  const isLoginPage = pathname === '/login' || pathname.startsWith('/admin/login') || pathname.startsWith('/register');
+  const isLoginPage = pathname.includes('/login') || pathname.includes('/register');
   const isAgentLoggedIn = !isLoginPage && !isAdminRoute;
-  const isAdminLoggedIn = isAdminRoute;
+  const isAdminLoggedIn = isAdminRoute && !isLoginPage;
 
-  let navItems;
-  let homeLink;
+  let navItems = isAdminRoute ? adminNavItems : agentNavItems;
+  let homeLink = isAdminRoute ? '/admin' : '/';
 
-  if (isAdminRoute) {
-    navItems = adminNavItems;
-    homeLink = '/admin';
-  } else {
-    navItems = agentNavItems;
-    homeLink = '/';
-  }
-
-  if (pathname === '/admin/login' || pathname === '/register') {
+  if (isLoginPage) {
     return null;
   }
 
@@ -65,7 +56,7 @@ export default function Header({ pageTitle }: { pageTitle: string }) {
               href={homeLink}
               className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
             >
-              <Package2 className="h-5 w-5 transition-all group-hover:scale-110" />
+              <Bot className="h-5 w-5 transition-all group-hover:scale-110" />
               <span className="sr-only">StockWatch</span>
             </Link>
             {navItems.map((item) => (
@@ -87,41 +78,11 @@ export default function Header({ pageTitle }: { pageTitle: string }) {
                   <button type="button">Logout</button>
               </div>
             )}
-            {!isAgentLoggedIn && !isAdminRoute && (
-               <Link href="/login" className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
-                  <LogIn className="h-5 w-5" />
-                  Agent Login
-              </Link>
-            )}
           </nav>
         </SheetContent>
       </Sheet>
       <div className="flex-1">
-         <h1 className="text-lg font-semibold md:text-2xl">{pageTitle}</h1>
-      </div>
-      <div className="hidden sm:flex items-center gap-2">
-        {(isAgentLoggedIn || isAdminLoggedIn) && (
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </Button>
-        )}
-        {!isAgentLoggedIn && !isAdminRoute && (
-             <Button asChild size="sm" variant="outline">
-                <Link href="/login">
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Agent Login
-                </Link>
-            </Button>
-        )}
-         {!isAdminLoggedIn && isAdminRoute && (
-             <Button asChild size="sm" variant="outline">
-                <Link href="/admin/login">
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Admin Login
-                </Link>
-            </Button>
-        )}
+         <h1 className="text-xl font-semibold md:text-2xl">{pageTitle}</h1>
       </div>
     </header>
   );
