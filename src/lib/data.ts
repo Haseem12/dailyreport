@@ -1,10 +1,9 @@
 
 'use server';
 
-// This function is kept for potential use in GET requests, 
-// but is not actively used by login/registration anymore.
+const API_URL = 'https://sajfoods.net/dailyreport/api.php';
+
 async function apiFetch(action: string, data?: any) {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://sajfoods.net/dailyreport/api.php';
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -15,20 +14,37 @@ async function apiFetch(action: string, data?: any) {
 
         if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`API request failed with status ${response.status}: ${errorText}`);
+            console.error(`API Error Response: ${errorText}`);
+            return { success: false, message: `Server error: ${response.status}` };
         }
         
-        const result = await response.json();
-        return result;
+        return await response.json();
 
     } catch (error) {
-        console.error(`API Fetch Error for action "${action}":`, error);
-        return { success: false, error: error instanceof Error ? error.message : 'An unknown error occurred' };
+        console.error(`Fetch API Error for action "${action}":`, error);
+        return { success: false, message: 'Failed to connect to the server.' };
     }
 }
 
+// --- AUTH/REGISTRATION FUNCTIONS ---
 
-// --- Data Fetching Functions ---
+export async function loginAgent(credentials: any) {
+    return apiFetch('login_agent', credentials);
+}
+
+export async function registerAgent(agentData: any) {
+    return apiFetch('add_agent', agentData);
+}
+
+export async function loginDepartment(credentials: any) {
+    return apiFetch('login_department', credentials);
+}
+
+export async function registerDepartment(departmentData: any) {
+    return apiFetch('add_department', departmentData);
+}
+
+// --- DATA FETCHING FUNCTIONS ---
 
 export async function getDepartments() {
     const result = await apiFetch('get_departments');
@@ -43,4 +59,8 @@ export async function getAgents() {
 export async function getStockReports() {
     const result = await apiFetch('get_stock_reports');
     return result.success ? result.reports : [];
+}
+
+export async function addStockReport(reportData: any) {
+    return apiFetch('add_stock_report', reportData);
 }
